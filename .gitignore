@@ -1,5 +1,9 @@
 .settings
-bin/*
-/.gradle/
+.classpath
+.project
 
+bin/*
+/.gradle/*
 .metadata/*
+/build/*
+
