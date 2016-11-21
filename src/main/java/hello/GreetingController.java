@@ -52,7 +52,5 @@ public class GreetingController {
     	return (T)t;
     }
 
-
-
     
 }

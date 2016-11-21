@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.mysql.jdbc.PreparedStatement;
+import com.mysql.jdbc.Statement;
 
 import config.ReadConfigFile;
 
@@ -14,7 +15,6 @@ public class WriteToMySql {
 	public static void connection() {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			//System.out.println("Worked");
 		} catch (ClassNotFoundException e) {
 			
 			e.printStackTrace();
@@ -97,6 +97,30 @@ public class WriteToMySql {
 		e.printStackTrace();
 	}
 }
+	
+	public static void ConnectionToMySql_SelectUtente(String Utente){
+		ReadConfigFile r = ReadConfigFile.getInstance();
+		connection();
+		String host = r.getHostname();
+		String username = r.getDBUser();
+		String password = r.getDBPwd();
+		try {
+		Connection connect = DriverManager.getConnection(host, username, password);
+		//String prova = "SELECT Username FROM utente WHERE Username =" + Utente;
+		//String prova = String.format();
+		PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT Username FROM utente WHERE Username = ? ");
+		statement.setString(1, Utente);
+		ResultSet data = statement.executeQuery();
+		while(data.next()){
+		System.out.println("Username " + data.getObject("Username"));	
+		}
+		statement.close();
+		connect.close();
+		System.out.println("zerrone :)");
+	} catch (SQLException e) {
+		e.printStackTrace();
+	}
+}
 
 	
 	
@@ -108,11 +132,14 @@ public class WriteToMySql {
 		ConnectionToMySql_InsertElement("GBalduz", "clusone", "Giorgio", "Balduzzi");
 		ConnectionToMySql_InsertElement("DBertoc", "castione", "Danilo", "Bertocchi");
 		ConnectionToMySql_InsertElement("Dave94", "zerrone", "Davide", "Zerre");
-		ConnectionToMySql_InsertElement("Martinparre2", "Juventus", "Martin", "Cossali");
-		ConnectionToMySql_DeleteElement("Martinparre2");
-		ConnectionToMySql_GetElement();
-		
-		
+		//ConnectionToMySql_InsertElement("Martinparre2", "Juventus", "Martin", "Cossali");
+		//ConnectionToMySql_DeleteElement("Martinparre2");
+		//ConnectionToMySql_GetElement();
+		ConnectionToMySql_SelectUtente("Martinparre");
+		ConnectionToMySql_SelectUtente("DBertoc");
+	
+	
+	
 	}
 
 }
