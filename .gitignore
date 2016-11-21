@@ -7,3 +7,4 @@ bin/*
 .metadata/*
 /build/*
 
+/build/
