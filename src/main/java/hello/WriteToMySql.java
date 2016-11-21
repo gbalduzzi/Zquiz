@@ -98,7 +98,8 @@ public class WriteToMySql {
 	}
 }
 	
-	public static void ConnectionToMySql_SelectUtente(String Utente){
+	public static boolean ConnectionToMySql_SelectUtente(String Utente){
+		boolean flag=false;
 		ReadConfigFile r = ReadConfigFile.getInstance();
 		connection();
 		String host = r.getHostname();
@@ -111,15 +112,15 @@ public class WriteToMySql {
 		PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT Username FROM utente WHERE Username = ? ");
 		statement.setString(1, Utente);
 		ResultSet data = statement.executeQuery();
-		while(data.next()){
-		System.out.println("Username " + data.getObject("Username"));	
+		if(data.next()== false){
+			flag = true;
 		}
 		statement.close();
 		connect.close();
-		System.out.println("zerrone :)");
 	} catch (SQLException e) {
 		e.printStackTrace();
 	}
+		return flag;
 }
 
 	

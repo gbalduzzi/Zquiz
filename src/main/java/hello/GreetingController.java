@@ -46,6 +46,12 @@ public class GreetingController {
     		return (T)x;
     	}
     	
+    	if(WriteToMySql.ConnectionToMySql_SelectUtente(User)==true){
+    		Error x = new Error(1, "L'untente che sti provando a registrare è già presente");
+    		return (T)x;
+    	}else{
+    		WriteToMySql.ConnectionToMySql_InsertElement(User, Password, Nome, Cognome);
+    	}
     	//se ci sono si utente che password:
     	//genero il token
     	Token t = new Token("megazerre");
