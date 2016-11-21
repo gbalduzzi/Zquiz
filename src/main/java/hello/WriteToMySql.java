@@ -7,6 +7,8 @@ import java.sql.SQLException;
 
 import com.mysql.jdbc.PreparedStatement;
 
+import config.ReadConfigFile;
+
 public class WriteToMySql {
 
 	public static void connection() {
@@ -25,10 +27,11 @@ public class WriteToMySql {
 	
 	public static void ConnectionToMySql_InsertElement(String Username, String Password, String Nome, String Cognome){
 		
+		ReadConfigFile r = ReadConfigFile.getInstance();
 		connection();
-		String host = "jdbc:mysql://localhost/zquiz";
-		String username = "root";
-		String password = "";
+		String host = r.getHostname();
+		String username = r.getDBUser();
+		String password = r.getDBPwd();
 		try {
 			Connection connect = DriverManager.getConnection(host, username, password);
 			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("INSERT INTO utente(Username,Password,Nome,Cognome) VALUES(?,?,?,?)");
@@ -51,10 +54,11 @@ public class WriteToMySql {
 	
 	public static void ConnectionToMySql_DeleteElement(String Username){
 		
+		ReadConfigFile r = ReadConfigFile.getInstance();
 		connection();
-		String host = "jdbc:mysql://localhost/zquiz";
-		String username = "root";
-		String password = "";
+		String host = r.getHostname();
+		String username = r.getDBUser();
+		String password = r.getDBPwd();
 		try {
 			Connection connect = DriverManager.getConnection(host, username, password);
 			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("DELETE FROM utente WHERE Username = ?");
@@ -74,11 +78,12 @@ public class WriteToMySql {
 	 */
 	
 	public static void ConnectionToMySql_GetElement(){
-	connection();
-	String host = "jdbc:mysql://localhost/zquiz";
-	String username = "root";
-	String password = "";
-	try {
+		ReadConfigFile r = ReadConfigFile.getInstance();
+		connection();
+		String host = r.getHostname();
+		String username = r.getDBUser();
+		String password = r.getDBPwd();
+		try {
 		Connection connect = DriverManager.getConnection(host, username, password);
 		PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT * FROM utente");
 		ResultSet data = statement.executeQuery();

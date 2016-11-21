@@ -41,15 +41,15 @@ public class ReadConfigFile {
 		return instance;
 	}
 	
-	protected String getHostname() {
+	public String getHostname() {
 		return prop.getProperty("hostname");
 	}
 	
-	protected String getDBUser() {
+	public String getDBUser() {
 		return prop.getProperty("dbuser");
 	}
 	
-	protected String getDBPwd() {
+	public String getDBPwd() {
 		return prop.getProperty("dbpassword");
 	}
 }
