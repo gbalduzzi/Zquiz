@@ -1,10 +1,14 @@
 package hello;
 
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.mysql.jdbc.Connection;
 
 @RestController
 public class GreetingController {
@@ -25,7 +29,7 @@ public class GreetingController {
     } **/
     
     /** @RequestMapping("/zerre")
-    public Greeting zerre(@RequestParam(value="name", defaultValue="Davide") 
+    public Greeting zerre(@RequestParam(value="name", defaultValue="Davide") 	
     String name, @RequestParam(value="cognome", defaultValue="Zerre") String cognome) {
         return new Greeting(counter.incrementAndGet(),
                             String.format(template, name),
@@ -33,8 +37,10 @@ public class GreetingController {
         					
     } **/
     
-    @RequestMapping("/register")
-    public <T> T Register(@RequestParam(value="User", defaultValue="") String User, @RequestParam(value="Password", defaultValue="") String Password ){
+    @RequestMapping(method= RequestMethod.POST, value = "/register")
+    public <T> T Register(@RequestParam(value="User",defaultValue="" ) String User, @RequestParam(value="Password", defaultValue="") String Password, 
+    		@RequestParam(value="Nome",defaultValue="" ) String Nome, @RequestParam(value="Cognome",defaultValue="" ) String Cognome ){
+    	
     	if(User.equals("") || Password.equals("")){
     		Error x = new Error(1, "manca o utente o password");
     		return (T)x;
@@ -42,11 +48,11 @@ public class GreetingController {
     	
     	//se ci sono si utente che password:
     	//genero il token
-    	Token t = new Token("jafniajf");
+    	Token t = new Token("megazerre");
     	return (T)t;
     }
-    
-    
-   
+
+
+
     
 }
