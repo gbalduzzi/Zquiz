@@ -1,5 +1,7 @@
 package hello;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,26 +39,34 @@ public class GreetingController {
         					
     } **/
     
+    
+    
     @RequestMapping(method= RequestMethod.POST, value = "/register")
     public <T> T Register(@RequestParam(value="User",defaultValue="" ) String User, @RequestParam(value="Password", defaultValue="") String Password, 
     		@RequestParam(value="Nome",defaultValue="" ) String Nome, @RequestParam(value="Cognome",defaultValue="" ) String Cognome ){
     	
+    	// caso 1 : mancano utente o password
     	if(User.equals("") || Password.equals("")){
     		Error x = new Error(1, "manca o utente o password");
     		return (T)x;
     	}
     	
-    	if(WriteToMySql.ConnectionToMySql_SelectUtente(User)==true){
-    		Error x = new Error(1, "L'untente che sti provando a registrare è già presente");
-    		return (T)x;
-    	}else{
-    		WriteToMySql.ConnectionToMySql_InsertElement(User, Password, Nome, Cognome);
-    	}
-    	//se ci sono si utente che password:
-    	//genero il token
-    	Token t = new Token("megazerre");
-    	return (T)t;
-    }
-
-    
+    	ResultSet data = WriteToMySql.ConnectionToMySql_SelectUtente2(User);
+				try {
+		//caso 2 : utente già registrato			
+					if(data.next()){
+						Error x = new Error(1, "L'untente che stai provando a registrare è già presente");
+						return (T)x;	
+					}
+		// caso 3 : utente non ancora registrato
+					else{
+					WriteToMySql.ConnectionToMySql_InsertElement(User, Password, Nome, Cognome);
+					Token t = new Token("megazerre");
+					return (T)t;
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+					return null;
+				}
+}
 }
