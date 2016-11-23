@@ -24,7 +24,6 @@ public class WriteToMySql {
 	/*
 	 * Metodo per inserire elemento nel database
 	 */
-	
 	public static void ConnectionToMySql_InsertElement(String Username, String Password, String Nome, String Cognome){
 		
 		ReadConfigFile r = ReadConfigFile.getInstance();
@@ -98,26 +97,6 @@ public class WriteToMySql {
 	}
 }
 	
-	public static void ConnectionToMySql_SelectUtente(String Utente){
-		ReadConfigFile r = ReadConfigFile.getInstance();
-		connection();
-		String host = r.getHostname();
-		String username = r.getDBUser();
-		String password = r.getDBPwd();
-		try {
-		Connection connect = DriverManager.getConnection(host, username, password);
-		PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT Username FROM utente WHERE Username = ? ");
-		statement.setString(1, Utente);
-		ResultSet data = statement.executeQuery();
-		while(data.next()){
-		System.out.println(data.getObject("Username"));}
-		statement.close();
-		connect.close();
-	} catch (SQLException e) {
-		e.printStackTrace();
-	}
-}
-	
 	public static ResultSet ConnectionToMySql_SelectUtente2(String Utente){
 		ReadConfigFile r = ReadConfigFile.getInstance();
 		connection();
@@ -133,6 +112,8 @@ public class WriteToMySql {
 	} catch (SQLException e) {
 		e.printStackTrace();
 		return null;
+	} finally {
+		//da capire come chiudere la connessione. connect.close()
 	}
 		
 }
