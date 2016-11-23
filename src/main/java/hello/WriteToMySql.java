@@ -1,9 +1,11 @@
 package hello;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import com.mysql.jdbc.PreparedStatement;
 import com.mysql.jdbc.Statement;
@@ -46,6 +48,34 @@ public class WriteToMySql {
 			e.printStackTrace();
 		}
 	}
+	
+	
+	/*
+	 * metodo per inserire token nel database
+	 */
+	
+public static void ConnectionToMySql_InsertToken(String Token, String Username, Timestamp s){
+		ReadConfigFile r = ReadConfigFile.getInstance();
+		connection();
+		String host = r.getHostname();
+		String username = r.getDBUser();
+		String password = r.getDBPwd();
+		try {
+			Connection connect = DriverManager.getConnection(host, username, password);
+			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("INSERT INTO token(Token,Username,FineValidità) VALUES(?,?,?)");
+			statement.setString(1, Token);
+			statement.setString(2, Username);
+			statement.setTimestamp(3, s);
+			statement.executeUpdate();
+			statement.close();
+			connect.close();
+			System.out.println("Works :)");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 	
 	/*
 	 * metodo per cancellare elemento dal database
@@ -124,7 +154,7 @@ public class WriteToMySql {
 	public static void main(String[] args) {
 		
 		//connection(); prima prova
-		ConnectionToMySql_InsertElement("Martinparre", "Juventus", "Martin", "Cossali");
+		//ConnectionToMySql_InsertElement("Martinparre", "Juventus", "Martin", "Cossali");
 		//ConnectionToMySql_InsertElement("GBalduz", "clusone", "Giorgio", "Balduzzi");
 		//ConnectionToMySql_InsertElement("DBertoc", "castione", "Danilo", "Bertocchi");
 		//ConnectionToMySql_InsertElement("Dave94", "zerrone", "Davide", "Zerre");
@@ -133,7 +163,13 @@ public class WriteToMySql {
 		//ConnectionToMySql_GetElement();
 		//ConnectionToMySql_SelectUtente("Martinparre");
 		//ConnectionToMySql_SelectUtente("DBertoc");
-	
+		
+		java.util.Date date = new java.util.Date();
+		long t = date.getTime();
+		java.sql.Timestamp sqlTimestamp = new java.sql.Timestamp(t);
+		
+		
+		ConnectionToMySql_InsertToken("zerrone", "dave94", sqlTimestamp);
 	
 	
 	}
