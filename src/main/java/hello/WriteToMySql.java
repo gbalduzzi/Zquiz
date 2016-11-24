@@ -1,11 +1,16 @@
 package hello;
 
+import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Locale;
 
 import com.mysql.jdbc.PreparedStatement;
 import com.mysql.jdbc.Statement;
@@ -135,7 +140,7 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 		String password = r.getDBPwd();
 		try {
 		Connection connect = DriverManager.getConnection(host, username, password);
-		PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT Username FROM utente WHERE Username = ? ");
+		PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT Username FROM utente WHERE Username = ?");
 		statement.setString(1, Utente);
 		ResultSet data = statement.executeQuery();
 		return data;
@@ -148,7 +153,44 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 		
 }
 
+
+	public static ResultSet ConnectionToMySql_SelectUtente2(String Utente, String Password){
+		ReadConfigFile r = ReadConfigFile.getInstance();
+		connection();
+		String host = r.getHostname();
+		String username = r.getDBUser();
+		String password = r.getDBPwd();
+		Password = md5(Password);
+		try {
+		Connection connect = DriverManager.getConnection(host, username, password);
+		PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT * FROM utente WHERE Username = ? AND Password = ?");
+		statement.setString(1, Utente);
+		statement.setString(2, Password);
+		ResultSet data = statement.executeQuery();
+		return data;
+	} catch (SQLException e) {
+		e.printStackTrace();
+		return null;
+	} finally {
+		//da capire come chiudere la connessione. connect.close()
+	}
+		
+}
 	
+	
+	
+	public static String md5(String source) {
+		   String md5 = null;
+		   try {
+		         MessageDigest mdEnc = MessageDigest.getInstance("MD5"); //Encryption algorithm
+		         mdEnc.update(source.getBytes(), 0, source.length());
+		         md5 = new BigInteger(1, mdEnc.digest()).toString(16); // Encrypted string
+		        } 
+		    catch (Exception ex) {
+		         return null;
+		    }
+		    return md5;
+		}
 	
 	
 	public static void main(String[] args) {
@@ -163,15 +205,12 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 		//ConnectionToMySql_GetElement();
 		//ConnectionToMySql_SelectUtente("Martinparre");
 		//ConnectionToMySql_SelectUtente("DBertoc");
+		//ConnectionToMySql_InsertToken("zerrone", "dave94", sqlTimestamp);
 		
-		java.util.Date date = new java.util.Date();
-		long t = date.getTime();
-		java.sql.Timestamp sqlTimestamp = new java.sql.Timestamp(t);
+		ConnectionToMySql_SelectUtente2("martinparre", "juventus"); 
+		//ConnectionToMySql_SelectUtente2("g.balduz","clusone"); 
 		
 		
-		ConnectionToMySql_InsertToken("zerrone", "dave94", sqlTimestamp);
-	
-	
 	}
 
 }

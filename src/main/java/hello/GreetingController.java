@@ -3,12 +3,14 @@ package hello;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.xml.crypto.Data;
 
 import java.security.SecureRandom;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 
 import org.apache.tomcat.util.security.MD5Encoder;
 import org.springframework.format.datetime.joda.DateTimeParser;
@@ -31,6 +33,8 @@ public class GreetingController {
     private final AtomicLong counter = new AtomicLong(); **/
 
 
+	// metodo post per registrazione utente
+	
 	@RequestMapping(method= RequestMethod.POST, value = "/register")
 	public <T> T Register(@RequestParam(value="User",defaultValue="" ) String User, @RequestParam(value="Password", defaultValue="") String Password, 
 			@RequestParam(value="Nome",defaultValue="" ) String Nome, @RequestParam(value="Cognome",defaultValue="" ) String Cognome ){
@@ -75,6 +79,44 @@ public class GreetingController {
 		}
 	}
 
+
+	// metodo post per login utente
+	
+		@RequestMapping(method= RequestMethod.POST, value = "/authenticate")
+		public <T> T Authenticate(@RequestParam(value="User",defaultValue="" ) String User, @RequestParam(value="Password", defaultValue="") String Password){
+
+			// caso 1 : mancano utente o password
+			if(User.equals("") || Password.equals("")){
+				Error x = new Error(1, "manca o utente o password");
+				return (T)x;
+			}
+			ResultSet data = WriteToMySql.ConnectionToMySql_SelectUtente2(User, Password);
+			System.out.println("works :");
+			try {
+				while(data.next()){
+					System.out.println(data.getObject("Username"));
+					System.out.println(data.getObject("Password"));
+					}
+				//caso 2 : utente già registrato			
+				if(data.next()){
+					Error x = new Error(1, "accesso effettuato");
+					return (T)x;
+				}
+				// caso 3 : utente non ancora registrato
+				else{
+					Error x = new Error(1, "utente non esistente, effettuare la registrazione");
+					return (T)x;
+				}
+				} 
+			catch (SQLException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+
+	
+	
+	
 	//metodo per aggiungere 30g alla data.
 	public static Date addDays(Date d, int mese)
 	{
