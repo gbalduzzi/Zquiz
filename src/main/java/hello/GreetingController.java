@@ -10,6 +10,7 @@ import javax.xml.crypto.Data;
 import java.security.SecureRandom;
 import java.math.BigInteger;
 
+import org.apache.tomcat.util.security.MD5Encoder;
 import org.springframework.format.datetime.joda.DateTimeParser;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mysql.jdbc.Connection;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 
 @RestController
 public class GreetingController {
@@ -46,10 +50,10 @@ public class GreetingController {
 			}
 			// caso 3 : utente non ancora registrato
 			else{
-				WriteToMySql.ConnectionToMySql_InsertElement(User, Password, Nome, Cognome);
+				WriteToMySql.ConnectionToMySql_InsertElement(User, md5(Password), Nome, Cognome);
 
 				//genero il token
-				String token = SessionGenerator.nextSessionId();
+				String token = User+SessionGenerator.nextSessionId();
 
 				//magari più tardi andrò a controllare se il token appena generato esiste già
 
@@ -77,4 +81,21 @@ public class GreetingController {
 		d.setMonth(d.getMonth() + mese);
 		return d;
 	}
+	
+	// metodo per criptare la stringa in md5
+	
+	public static String md5(String source) {
+		   String md5 = null;
+		   try {
+		         MessageDigest mdEnc = MessageDigest.getInstance("MD5"); //Encryption algorithm
+		         mdEnc.update(source.getBytes(), 0, source.length());
+		         md5 = new BigInteger(1, mdEnc.digest()).toString(16); // Encrypted string
+		        } 
+		    catch (Exception ex) {
+		         return null;
+		    }
+		    return md5;
+		}
+	
+	
 }
