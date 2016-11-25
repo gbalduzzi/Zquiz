@@ -30,6 +30,7 @@ public class WriteToMySql {
 	
 	/*
 	 * Metodo per inserire elemento nel database
+	 * usato nel metodo /register
 	 */
 	public static void ConnectionToMySql_InsertElement(String Username, String Password, String Nome, String Cognome){
 		
@@ -57,8 +58,10 @@ public class WriteToMySql {
 	
 	/*
 	 * metodo per inserire token nel database
+	 * usato nel metodo /register
 	 */
 	
+
 public static void ConnectionToMySql_InsertToken(String Token, String Username, Timestamp s){
 		ReadConfigFile r = ReadConfigFile.getInstance();
 		connection();
@@ -83,7 +86,8 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 	
 	
 	/*
-	 * metodo per cancellare elemento dal database
+	 * metodo per cancellare elemento dal database.
+	 * 
 	 */
 	
 	public static void ConnectionToMySql_DeleteElement(String Username){
@@ -109,6 +113,7 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 
 	/*
 	 * metodo per prelevare elemento da phpmyadmin
+	 * probabilmente non si usa VERIFICARE!!!
 	 */
 	
 	public static void ConnectionToMySql_GetElement(){
@@ -132,6 +137,9 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 	}
 }
 	
+	// metodo che restituisce un utente
+	// usato nel metodo /register
+	
 	public static ResultSet ConnectionToMySql_SelectUtente2(String Utente){
 		ReadConfigFile r = ReadConfigFile.getInstance();
 		connection();
@@ -152,8 +160,31 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 	}
 		
 }
+	
+	//metodo selct utente che restitutisce tutti i dati dell'utente, anche il numero di vittorie
+	//usato in /user
+	
+	public static ResultSet ConnectionToMySql_SelectUtenteCompleto(String Utente){
+		ReadConfigFile r = ReadConfigFile.getInstance();
+		connection();
+		String host = r.getHostname();
+		String username = r.getDBUser();
+		String password = r.getDBPwd();
+		try {
+		Connection connect = DriverManager.getConnection(host, username, password);
+		PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT * FROM utente WHERE Username = ?");
+		statement.setString(1, Utente);
+		ResultSet data = statement.executeQuery();
+		return data;
+	} catch (SQLException e) {
+		e.printStackTrace();
+		return null;
+	}
+}
 
-
+	// metodo select utente che restituisce utente e password di un utente
+	// usato nel metodo /authenticate
+	
 	public static ResultSet ConnectionToMySql_SelectUtente2(String Utente, String Password){
 		ReadConfigFile r = ReadConfigFile.getInstance();
 		connection();
@@ -173,6 +204,28 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 		return null;
 	}
 }
+	
+	// metodo che restituisce il token legato ad un utente
+	// usato nel metodo /authenticate
+	
+	public static ResultSet ConnectionToMySql_SelectToken(String Utente){
+		ReadConfigFile r = ReadConfigFile.getInstance();
+		connection();
+		String host = r.getHostname();
+		String username = r.getDBUser();
+		String password = r.getDBPwd();
+		try {
+		Connection connect = DriverManager.getConnection(host, username, password);
+		PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT Token FROM token WHERE Username = ?");
+		statement.setString(1, Utente);
+		ResultSet data = statement.executeQuery();
+		return data;
+	} catch (SQLException e) {
+		e.printStackTrace();
+		return null;
+	}
+}
+
 	
 	
 	
@@ -204,9 +257,9 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 		//ConnectionToMySql_SelectUtente("DBertoc");
 		//ConnectionToMySql_InsertToken("zerrone", "dave94", sqlTimestamp);
 		
-		ConnectionToMySql_SelectUtente2("martinparre", "juventus"); 
+		//ConnectionToMySql_SelectUtente2("martinparre", "juventus"); 
 		//ConnectionToMySql_SelectUtente2("g.balduz","clusone"); 
-		
+		ConnectionToMySql_SelectToken("martinparre");
 		
 	}
 

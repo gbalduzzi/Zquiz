@@ -28,9 +28,16 @@ import java.security.NoSuchAlgorithmException;
 @RestController
 public class GreetingController {
 
-	/**private static final String template = "Nome:, %s";
-    private static final String template2 = "Cognome:, %s";
-    private final AtomicLong counter = new AtomicLong(); **/
+	private static final String template = "Username:, %s";
+    private static final String template2 = "Password:, %s";
+    private static final String template3 = "Nome:, %s";
+    private static final String template4 = "Cognome:, %s";
+    private static final String template5 = "Vittorie:, %s";
+  
+    
+    
+    
+    //  private final AtomicLong counter = new AtomicLong(); **/
 
 
 	// metodo post per registrazione utente
@@ -81,7 +88,8 @@ public class GreetingController {
 	
 		@RequestMapping(method= RequestMethod.POST, value = "/authenticate")
 		public <T> T Authenticate(@RequestParam(value="User",defaultValue="" ) String User, @RequestParam(value="Password", defaultValue="") String Password){
-
+			String token = null;
+			
 			// caso 1 : mancano utente o password
 			if(User.equals("") || Password.equals("")){
 				Error x = new Error(1, "manca o utente o password");
@@ -91,12 +99,16 @@ public class GreetingController {
 			try {
 				//caso 2 : utente già registrato
 				if(data.next()){
-					Error x = new Error(1, "accesso effettuato");
+					ResultSet tok = WriteToMySql.ConnectionToMySql_SelectToken(User);
+					while(tok.next()){
+						token = tok.getString("Token");
+					}
+					Error x = new Error(0, "accesso effettuato come "+User+"  Token: "+token);
 					return (T)x;
 				}
 				// caso 3 : utente non ancora registrato
 				else{
-					Error x = new Error(1, "utente non esistente, effettuare la registrazione");
+					Error x = new Error(1, "utente non esistente, effettuare la registrazione o verificare di avere inserito username e password corretti");
 					return (T)x;
 				}
 				} 
@@ -107,6 +119,30 @@ public class GreetingController {
 		}
 
 	
+	// metodo get per restituire dati utente quando richiesti
+		
+		@RequestMapping(method= RequestMethod.GET, value = "/user")
+		public User user(@RequestParam(value="User",defaultValue="") String User){
+			
+			ResultSet data = WriteToMySql.ConnectionToMySql_SelectUtenteCompleto(User);
+					try {
+						if(data.next()){
+						String u = data.getString("Username");
+						String p = data.getString("Password");
+						String n = data.getString("Nome");
+						String c = data.getString("Cognome");
+						int v = data.getInt("Vittorie");
+						User ut = new User(String.format(template, u),String.format(template2, p),String.format(template3, n), String.format(template4, c), v);
+						return ut;
+						}
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					return null;
+		}
+		
+		
 	
 	
 	//metodo per aggiungere 30g alla data.
