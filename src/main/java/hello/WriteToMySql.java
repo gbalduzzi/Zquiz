@@ -171,10 +171,7 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 	} catch (SQLException e) {
 		e.printStackTrace();
 		return null;
-	} finally {
-		//da capire come chiudere la connessione. connect.close()
 	}
-		
 }
 	
 	

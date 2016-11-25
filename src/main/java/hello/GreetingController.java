@@ -63,13 +63,10 @@ public class GreetingController {
 
 				//genero il timestamp x inserire il token.
 				java.util.Date date = new java.util.Date();
-				System.out.println(date.toString() + " ->data prima il cambio");
 				date= GreetingController.addDays(date, 1);
 				long time= date.getTime();
 				java.sql.Timestamp sqlTimestamp= new java.sql.Timestamp(time);
-				System.out.println(date.toString() + " ->data dopo il cambio");
 				WriteToMySql.ConnectionToMySql_InsertToken(token, User, sqlTimestamp);
-
 				Token t = new Token(token);
 				return (T)t;
 			}
@@ -91,13 +88,8 @@ public class GreetingController {
 				return (T)x;
 			}
 			ResultSet data = WriteToMySql.ConnectionToMySql_SelectUtente2(User, Password);
-			System.out.println("works :");
 			try {
-				while(data.next()){
-					System.out.println(data.getObject("Username"));
-					System.out.println(data.getObject("Password"));
-					}
-				//caso 2 : utente già registrato			
+				//caso 2 : utente già registrato
 				if(data.next()){
 					Error x = new Error(1, "accesso effettuato");
 					return (T)x;
