@@ -28,17 +28,6 @@ import java.security.NoSuchAlgorithmException;
 @RestController
 public class GreetingController {
 
-	private static final String template = "Username:, %s";
-    private static final String template2 = "Password:, %s";
-    private static final String template3 = "Nome:, %s";
-    private static final String template4 = "Cognome:, %s";
-    private static final String template5 = "Vittorie:, %s";
-  
-    
-    
-    
-    //  private final AtomicLong counter = new AtomicLong(); **/
-
 
 	// metodo post per registrazione utente
 	
@@ -132,7 +121,7 @@ public class GreetingController {
 						String n = data.getString("Nome");
 						String c = data.getString("Cognome");
 						int v = data.getInt("Vittorie");
-						User ut = new User(String.format(template, u),String.format(template2, p),String.format(template3, n), String.format(template4, c), v);
+						User ut = new User(u,p, n, c,v);
 						return ut;
 						}
 					} catch (SQLException e) {
