@@ -154,6 +154,12 @@ public class GreetingController {
 		}
 		return md5;
 	}
-
-
+	
+	
+	//prova a fare la richiesta per una partita (non testato)
+	@RequestMapping(method= RequestMethod.GET, value = "/searchmatch")
+	public User SearchMatch(@RequestParam(value="Token",defaultValue="") String Token){
+		GestioneCoda.RequestGame(Token);
+		return null;
+	}
 }
