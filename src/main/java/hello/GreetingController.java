@@ -158,8 +158,21 @@ public class GreetingController {
 	
 	//prova a fare la richiesta per una partita (non testato)
 	@RequestMapping(method= RequestMethod.GET, value = "/searchmatch")
-	public User SearchMatch(@RequestParam(value="Token",defaultValue="") String Token){
-		GestioneCoda.RequestGame(Token);
+	public <T> T SearchMatch(@RequestParam(value="Token",defaultValue="") String Token){
+		//controllo se il token esiste nella tabella dei token. (eventualmente salvo l'utente associato al token per controlli successivi). WriteToMysql.CheckToken()
+		 
+		//bisogna controllare anche se il token inviato è al momento in una tabella della partita attiva. GestioneCoda.ControllaPartitaAttiva(user);
+		
+		GestioneCoda.RequestGame(Token); //inserisce nella coda la richiesta e in caso aggiorna
+		
+		/**
+		 * metodo per aspettare un secondo.
+		 * if(writesoMysql.CheckPartitaAttiva() != null){
+		 * 		json partita trovata -> matchID e avversario che prendo dal resultset.
+		 * } else(se partiota in cosa){
+		 * 		json -> aspetta stronzo sta cercando una partita
+		 * }
+		 */
 		return null;
 	}
 }

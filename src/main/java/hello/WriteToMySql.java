@@ -242,6 +242,13 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 		    return md5;
 		}
 	
+	//CheckPartitaAttiva(){
+	//metodo che torna le partite associate(resultset) al token con stato uguale a 1 (il valore che ricevo è lo user)
+	//torna tutti gli elementi della riga.
+	
+	//CreatePartita()
+	//metodo che riceve in ingresso i due toke.. genera un matchid casuale e inserisce la partita nella tabella
+	
 	
 	public static void main(String[] args) {
 		
