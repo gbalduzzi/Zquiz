@@ -226,6 +226,32 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 	}
 }
 
+	// metodo che restituisce il token l'utente legato al token
+	// usato nel metodo check partita attiva
+	
+	public static String ConnectionToMySql_SelectUsername(String token){
+		String s = null;
+		ReadConfigFile r = ReadConfigFile.getInstance();
+		connection();
+		String host = r.getHostname();
+		String username = r.getDBUser();
+		String password = r.getDBPwd();
+		try {
+		Connection connect = DriverManager.getConnection(host, username, password);
+		PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT Username FROM token WHERE Token = ?");
+		statement.setString(1, token);
+		ResultSet data = statement.executeQuery();
+		while(data.next()){
+			s= data.getString("Username");
+		}
+		connect.close();
+		statement.close();
+		return s;
+	} catch (SQLException e) {
+		e.printStackTrace();
+		return null;
+	}
+}
 	
 	
 	
@@ -245,6 +271,32 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 	//CheckPartitaAttiva(){
 	//metodo che torna le partite associate(resultset) al token con stato uguale a 1 (il valore che ricevo è lo user)
 	//torna tutti gli elementi della riga.
+	
+	public static ResultSet ConnectionToMySql_CheckPartitaAttiva(String token){
+		String utente = WriteToMySql.ConnectionToMySql_SelectUsername(token);
+		ReadConfigFile r = ReadConfigFile.getInstance();
+		connection();
+		String host = r.getHostname();
+		String username = r.getDBUser();
+		String password = r.getDBPwd();
+		try {
+		Connection connect = DriverManager.getConnection(host, username, password);
+		PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT * FROM partita WHERE Status =? AND Username1= ? OR Username2=?");
+		statement.setInt(1, 1);
+		statement.setString(2, utente);
+		statement.setString(3, utente);
+		ResultSet data = statement.executeQuery();
+		while(data.next()){
+			System.out.println(data.getInt(1));
+		}
+		return data;
+	} catch (SQLException e) {
+		e.printStackTrace();
+		return null;
+	}
+
+}
+	
 	
 	//CreatePartita()
 	//metodo che riceve in ingresso i due toke.. genera un matchid casuale e inserisce la partita nella tabella
@@ -266,8 +318,20 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 		
 		//ConnectionToMySql_SelectUtente2("martinparre", "juventus"); 
 		//ConnectionToMySql_SelectUtente2("g.balduz","clusone"); 
-		ConnectionToMySql_SelectToken("martinparre");
+		//ConnectionToMySql_SelectToken("martinparre");
 		
+		//ConnectionToMySql_CheckPartitaAttiva("martinparres1jbl49tdarf4g3qt02va5qt3b");
+		
+		// funzionano le 2 righe sotto
+		//String x =ConnectionToMySql_SelectUsername("martinparres1jbl49tdarf4g3qt02va5qt3b");
+		//System.out.println(x);
+		
+		System.out.println("Partita martinparre:");
+		ConnectionToMySql_CheckPartitaAttiva("martinparres1jbl49tdarf4g3qt02va5qt3b");
+		System.out.println("partita attiva dave94:");
+		ConnectionToMySql_CheckPartitaAttiva("dave941t1j63ivum2takn1g2rv0dmmgg");
+		System.out.println("Partita attiva d.bertoc:");
+		ConnectionToMySql_CheckPartitaAttiva("d.bertoc8d5uf5ju8dm8p83vvmauub0kgj");
 	}
 
 }
