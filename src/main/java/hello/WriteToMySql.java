@@ -10,7 +10,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.Random;
 
 import com.mysql.jdbc.PreparedStatement;
 import com.mysql.jdbc.Statement;
@@ -299,10 +301,40 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 	
 	
 	//CreatePartita()
-	//metodo che riceve in ingresso i due toke.. genera un matchid casuale e inserisce la partita nella tabella
+	//metodo che riceve in ingresso i due token.. genera un matchid casuale e inserisce la partita nella tabella
+	
+public static void ConnectionToMySql_CreateMatch(String token1, String token2){
+		
+		ReadConfigFile r = ReadConfigFile.getInstance();
+		connection();
+		String host = r.getHostname();
+		String username = r.getDBUser();
+		String password = r.getDBPwd();
+		String tok1 = ConnectionToMySql_SelectUsername(token1);
+		String tok2 = ConnectionToMySql_SelectUsername(token2);
+		Random randomGenerator = new Random();
+		int match_ID = randomGenerator.nextInt(100);
+		try {
+			Connection connect = DriverManager.getConnection(host, username, password);
+			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("INSERT INTO partita(Match_ID,Username1,Username2,Status,Inizio) VALUES(?,?,?,?,?)");
+			statement.setInt(1, match_ID);
+			statement.setString(2, tok1);
+			statement.setString(3, tok2);
+			statement.setInt(4, 1);
+			statement.setTimestamp(5,new Timestamp(System.currentTimeMillis())); // crea data attuale
+			statement.executeUpdate();
+			statement.close();
+			connect.close();
+			System.out.println("Works :)");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	
 	
 	public static void main(String[] args) {
+		
 		
 		//connection(); prima prova
 		//ConnectionToMySql_InsertElement("Martinparre", "Juventus", "Martin", "Cossali");
@@ -332,6 +364,11 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 		ConnectionToMySql_CheckPartitaAttiva("dave941t1j63ivum2takn1g2rv0dmmgg");
 		System.out.println("Partita attiva d.bertoc:");
 		ConnectionToMySql_CheckPartitaAttiva("d.bertoc8d5uf5ju8dm8p83vvmauub0kgj");
+		
+		System.out.println("crea partita tra giorgio e nannini");
+		ConnectionToMySql_CreateMatch("g.balduzjoebtdp6k96q4ogrdnks74f522", "nanniman7shrs0kqb4ti7ohhlfufev01f3");
+		System.out.println("crea partita tra danilo e tia");
+		ConnectionToMySql_CreateMatch("d.bertoc8d5uf5ju8dm8p83vvmauub0kgj", "tiapera7cjsm2v1per79mgna4inmi4gm8");
 	}
 
 }
