@@ -285,7 +285,7 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 		String password = r.getDBPwd();
 		try {
 		Connection connect = DriverManager.getConnection(host, username, password);
-		PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT * FROM partita WHERE Status =? AND Username1= ? OR Username2=?");
+		PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT * FROM partita WHERE Status =? AND (Username1= ? OR Username2=?)");
 		statement.setInt(1, 1);
 		statement.setString(2, utente);
 		statement.setString(3, utente);
