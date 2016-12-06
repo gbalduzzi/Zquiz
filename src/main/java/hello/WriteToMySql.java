@@ -31,7 +31,8 @@ public class WriteToMySql {
 	}
 	
 	/*
-	 * Metodo per inserire elemento nel database
+	 * 
+	 * Metodo per inserire utente 
 	 * usato nel metodo /register
 	 */
 	public static void ConnectionToMySql_InsertElement(String Username, String Password, String Nome, String Cognome){
@@ -51,7 +52,7 @@ public class WriteToMySql {
 			statement.executeUpdate();
 			statement.close();
 			connect.close();
-			System.out.println("Works :)");
+			System.out.println("Utente inserito correttamente nel database :)");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -79,7 +80,7 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 			statement.executeUpdate();
 			statement.close();
 			connect.close();
-			System.out.println("Works :)");
+			System.out.println("Token inserito correttamente nel database :)");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -106,7 +107,8 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 			statement.executeUpdate();
 			statement.close();
 			connect.close();
-			System.out.println("Works :)");
+			System.out.println("Utente eliminato correttamente dalla tabella :)");
+			//dovrò eliminare anche il token
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -288,9 +290,6 @@ public static void ConnectionToMySql_InsertToken(String Token, String Username, 
 		statement.setString(2, utente);
 		statement.setString(3, utente);
 		ResultSet data = statement.executeQuery();
-		while(data.next()){
-			System.out.println(data.getInt(1));
-		}
 		return data;
 	} catch (SQLException e) {
 		e.printStackTrace();
@@ -325,7 +324,7 @@ public static void ConnectionToMySql_CreateMatch(String token1, String token2){
 			statement.executeUpdate();
 			statement.close();
 			connect.close();
-			System.out.println("Works :)");
+			System.out.println("Match inserito :)");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

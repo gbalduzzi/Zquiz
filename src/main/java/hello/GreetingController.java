@@ -157,17 +157,18 @@ public class GreetingController {
 	
 	
 	//prova a fare la richiesta per una partita
+
 	@RequestMapping(method= RequestMethod.GET, value = "/searchmatch")
 	public <T> T SearchMatch(@RequestParam(value="Token",defaultValue="") String Token) throws InterruptedException{
-		
+
 		//controllo se il token esiste nella tabella dei token. (eventualmente salvo l'utente associato al token per controlli successivi).
 		String User =   WriteToMySql.ConnectionToMySql_SelectUsername(Token);
 		if(User == null){
 			Error e = new Error(1, "Token inviato non riconosciuto. Potrebbe essere scaduto");
 			return (T)e;
 		}
-		
-		 
+
+
 		//bisogna controllare anche se il token inviato è al momento in una tabella della partita attiva.
 		ResultSet x = WriteToMySql.ConnectionToMySql_CheckPartitaAttiva(Token);
 		try {
@@ -179,10 +180,10 @@ public class GreetingController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
+
+
 		GestioneCoda.RequestGame(Token); //inserisce nella coda la richiesta e in caso aggiorna
-		
+
 		/**
 		 * metodo per aspettare un secondo, così do il tempo di inserire la partita.
 		 * if(writesoMysql.CheckPartitaAttiva() != null){
@@ -193,19 +194,19 @@ public class GreetingController {
 		 */
 		Thread.sleep(500);
 		ResultSet temp2 = WriteToMySql.ConnectionToMySql_CheckPartitaAttiva(Token); //do per scontato che la partita a questo punto sia appena stata inserita.
-		if(temp2 != null){
-			try {
-				Partita p = new Partita(temp2.getInt(1), User.equals(temp2.getString(2))? temp2.getString(3) : temp2.getString(2) );
-				return (T)p;
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		try {
+			if(temp2.next()){
+					Partita p = new Partita(temp2.getInt(1), User.equals(temp2.getString(2))? temp2.getString(3) : temp2.getString(2) );
+					return (T)p;
+			}else if(GestioneCoda.CheckCoda(Token)){
+				Error e3 = new Error(0, "Stismo ricercando una partita per te");
+				return (T)e3;
 			}
-		}else if(GestioneCoda.CheckCoda(Token)){
-			Error e3 = new Error(0, "Stismo ricercando una partita per te");
-			return (T)e3;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
+
 		return null;
 	}
 }

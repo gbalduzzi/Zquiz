@@ -13,7 +13,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.hamcrest.core.IsInstanceOf;
 import org.springframework.boot.logging.LoggingApplicationListener;
-
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 public class GestioneCoda implements Runnable {
 	
 	static Queue<MatchRequest> UtentiInAttesa = new LinkedList<MatchRequest>();
@@ -30,9 +31,12 @@ public class GestioneCoda implements Runnable {
 		while(true){
 			//controllo se qualche timeout è scaduto....
 			for (MatchRequest matchRequest : UtentiInAttesa) {
-				if(getDateDiff(matchRequest.getTempo())>5){ //se è 5 secondi che non riceve più una richiesta verrà rimosso.
+				System.out.println("Differenza di secondi :" + getDateDiff(matchRequest.getTempo()));
+				if(getDateDiff(matchRequest.getTempo())>5000){ //se è 5 secondi che non riceve più una richiesta verrà rimosso.
 					UtentiInAttesa.remove(matchRequest);
 					Contatore--;
+					System.out.println("elemento eliminato dalla coda perchè il tempo è scaduto \n");
+					Stamp();
 				}
 			}
 			
@@ -42,21 +46,30 @@ public class GestioneCoda implements Runnable {
 				t2 = UtentiInAttesa.remove();
 				Contatore--;
 				WriteToMySql.ConnectionToMySql_CreateMatch(t1.getToken(), t2.getToken());
+				System.out.println("due elementi sono stati inseriti nella tabella e tolti dalla coda");
+				Stamp();
 			}
+			
+			//aspetta un minuto
 		}
 		
-		
+	}
+	
+	public static void Stamp(){
+		int cont =0; 
+		for (MatchRequest matchRequest : UtentiInAttesa) {
+			System.out.println("Elem "+ cont +") Token: "+ matchRequest.getToken()+ ", Data: "+ matchRequest.getTempo().toString());
+		}
 	}
 	
 	//calcola la differenza fra due date in secondi
 	public static long getDateDiff(Date date) {
 		Date temp = new Date(); //di default ha il valore di adesso.
 	    long diffInMillies = temp.getTime() - date.getTime();
-	    TimeUnit timeUnit= TimeUnit.SECONDS;
-		return timeUnit.convert(diffInMillies,timeUnit);
+	    return diffInMillies;
 	}
 	
-	//mrtodo per fare la richiesta di gioco.
+	//metodo per fare la richiesta di gioco.
 	public static void RequestGame(String Token){
 		MatchRequest x = new MatchRequest(Token); //genoro la tupla da mettere nella coda.
 		
@@ -76,6 +89,7 @@ public class GestioneCoda implements Runnable {
 			UtentiInAttesa.offer(x);
 			Contatore++;
 			System.out.println("valore aaggiunto");
+			Stamp();
 		}
 	}
 	
