@@ -23,98 +23,97 @@ import java.util.concurrent.locks.*;
 
 
 public class GestioneCoda implements Runnable {
-	
+
 	static Queue<MatchRequest> UtentiInAttesa = new LinkedList<MatchRequest>();
 	static int Contatore=0; //conta gli elementi al momento presenti nella coda
-	
+
 	static ReentrantLock lock = new ReentrantLock();
 
-	
+
 	MatchRequest t1;
 	MatchRequest t2;
-	
+
 	public GestioneCoda(){}
-	
+
 	public void run() {
 		//codice per gestire la coda
 		while(true){
 			//controllo se qualche timeout è scaduto....
 			lock.lock();
 			try{
-			Iterator<MatchRequest> it = UtentiInAttesa.iterator();
-			while(it.hasNext()) {
-				MatchRequest matchRequest = it.next();
-				if(getDateDiff(matchRequest.getTempo())>10000000){ //se è 5 secondi che non riceve più una richiesta verrà rimosso.
-					it.remove();
+				Iterator<MatchRequest> it = UtentiInAttesa.iterator();
+				while(it.hasNext()) {
+					MatchRequest matchRequest = it.next();
+					if(getDateDiff(matchRequest.getTempo())>10000000){ //se è 5 secondi che non riceve più una richiesta verrà rimosso.
+						it.remove();
+						Contatore--;
+						System.out.println("elemento eliminato dalla coda perchè il tempo è scaduto \n");
+						Stamp();
+					}
+				}
+
+				while(Contatore >= 2){
+					t1= UtentiInAttesa.remove();
 					Contatore--;
-					System.out.println("elemento eliminato dalla coda perchè il tempo è scaduto \n");
+					t2 = UtentiInAttesa.remove();
+					Contatore--;
+					WriteToMySql.ConnectionToMySql_CreateMatch(t1.getToken(), t2.getToken());
+					System.out.println("due elementi sono stati inseriti nella tabella e tolti dalla coda");
 					Stamp();
 				}
-			}
 			}
 			finally{
 				lock.unlock();
 			}
-			while(Contatore >= 2){
-				t1= UtentiInAttesa.remove();
-				Contatore--;
-				t2 = UtentiInAttesa.remove();
-				Contatore--;
-				WriteToMySql.ConnectionToMySql_CreateMatch(t1.getToken(), t2.getToken());
-				System.out.println("due elementi sono stati inseriti nella tabella e tolti dalla coda");
-				Stamp();
-			}
-		
 		}
-		
+
 	}
-	
+
 	public static void Stamp(){
 		int cont =0; 
 		for (MatchRequest matchRequest : UtentiInAttesa) {
 			System.out.println("Elem "+ cont +") Token: "+ matchRequest.getToken()+ ", Data: "+ matchRequest.getTempo().toString());
 		}
 	}
-	
+
 	//calcola la differenza fra due date in secondi
 	public static long getDateDiff(Date date) {
 		Date temp = new Date(); //di default ha il valore di adesso.
-	    long diffInMillies = temp.getTime() - date.getTime();
-	    return diffInMillies;
+		long diffInMillies = temp.getTime() - date.getTime();
+		return diffInMillies;
 	}
-	
+
 	//metodo per fare la richiesta di gioco.
 	public static void RequestGame(String Token){
-	
+
 		MatchRequest x = new MatchRequest(Token); //genoro la tupla da mettere nella coda.
-		
-		if(UtentiInAttesa.contains(x)){ //se il token inviato è già contenuto nella coda
-			
-			for (MatchRequest matchRequest : UtentiInAttesa) { //cerco l'elemento che mi interessa e aggiorno il suo timestamp
-				
-				if(matchRequest.getToken().equals(Token)){
-					Date reset = new Date(); //automaticamente mette come valore di default la data corrente.
-					matchRequest.setTempo(reset);
-					System.out.println("valore aggiornato della richiesta");
+		lock.lock();
+		try{
+			if(UtentiInAttesa.contains(x)){ //se il token inviato è già contenuto nella coda
+
+				for (MatchRequest matchRequest : UtentiInAttesa) { //cerco l'elemento che mi interessa e aggiorno il suo timestamp
+
+					if(matchRequest.getToken().equals(Token)){
+						Date reset = new Date(); //automaticamente mette come valore di default la data corrente.
+						matchRequest.setTempo(reset);
+						System.out.println("valore aggiornato della richiesta");
+					}
+
 				}
-				
+
+			}else{//altrimenti se non è già contenuto aggiungo l'elemento alla coda.
+
+				UtentiInAttesa.offer(x);
+				Contatore++;
+				System.out.println("valore aaggiunto");
+				Stamp();
 			}
-			
-		}else{//altrimenti se non è già contenuto aggiungo l'elemento alla coda.
-			lock.lock();
-			try{
-			UtentiInAttesa.offer(x);
-			Contatore++;
-			System.out.println("valore aaggiunto");
-			Stamp();
-		}
-		finally{
+		}finally{
 			lock.unlock();
 		}
-		}
 	}
-	
-	
+
+
 	//metodo checkcoda()
 	//mi controlla se l'utente è già nella coda-> contains elemento in coda e tornerà true o false.
 	public static boolean CheckCoda(String Token){
