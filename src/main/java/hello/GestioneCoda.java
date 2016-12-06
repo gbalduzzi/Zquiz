@@ -6,19 +6,29 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.tomcat.jni.Lock;
 import org.hamcrest.core.IsInstanceOf;
 import org.springframework.boot.logging.LoggingApplicationListener;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.*;
+
+
+
 public class GestioneCoda implements Runnable {
 	
 	static Queue<MatchRequest> UtentiInAttesa = new LinkedList<MatchRequest>();
 	static int Contatore=0; //conta gli elementi al momento presenti nella coda
+	
+	static ReentrantLock lock = new ReentrantLock();
+
 	
 	MatchRequest t1;
 	MatchRequest t2;
@@ -27,19 +37,24 @@ public class GestioneCoda implements Runnable {
 	
 	public void run() {
 		//codice per gestire la coda
-		
 		while(true){
 			//controllo se qualche timeout è scaduto....
-			for (MatchRequest matchRequest : UtentiInAttesa) {
-				System.out.println("Differenza di secondi :" + getDateDiff(matchRequest.getTempo()));
-				if(getDateDiff(matchRequest.getTempo())>5000){ //se è 5 secondi che non riceve più una richiesta verrà rimosso.
-					UtentiInAttesa.remove(matchRequest);
+			lock.lock();
+			try{
+			Iterator<MatchRequest> it = UtentiInAttesa.iterator();
+			while(it.hasNext()) {
+				MatchRequest matchRequest = it.next();
+				if(getDateDiff(matchRequest.getTempo())>10000000){ //se è 5 secondi che non riceve più una richiesta verrà rimosso.
+					it.remove();
 					Contatore--;
 					System.out.println("elemento eliminato dalla coda perchè il tempo è scaduto \n");
 					Stamp();
 				}
 			}
-			
+			}
+			finally{
+				lock.unlock();
+			}
 			while(Contatore >= 2){
 				t1= UtentiInAttesa.remove();
 				Contatore--;
@@ -49,8 +64,7 @@ public class GestioneCoda implements Runnable {
 				System.out.println("due elementi sono stati inseriti nella tabella e tolti dalla coda");
 				Stamp();
 			}
-			
-			//aspetta un minuto
+		
 		}
 		
 	}
@@ -71,6 +85,7 @@ public class GestioneCoda implements Runnable {
 	
 	//metodo per fare la richiesta di gioco.
 	public static void RequestGame(String Token){
+	
 		MatchRequest x = new MatchRequest(Token); //genoro la tupla da mettere nella coda.
 		
 		if(UtentiInAttesa.contains(x)){ //se il token inviato è già contenuto nella coda
@@ -85,11 +100,17 @@ public class GestioneCoda implements Runnable {
 				
 			}
 			
-		}else{ //altrimenti se non è già contenuto aggiungo l'elemento alla coda.
+		}else{//altrimenti se non è già contenuto aggiungo l'elemento alla coda.
+			lock.lock();
+			try{
 			UtentiInAttesa.offer(x);
 			Contatore++;
 			System.out.println("valore aaggiunto");
 			Stamp();
+		}
+		finally{
+			lock.unlock();
+		}
 		}
 	}
 	
