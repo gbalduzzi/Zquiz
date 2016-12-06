@@ -89,14 +89,14 @@ public class GestioneCoda implements Runnable {
 		MatchRequest x = new MatchRequest(Token); //genoro la tupla da mettere nella coda.
 		lock.lock();
 		try{
-			if(UtentiInAttesa.contains(x)){ //se il token inviato è già contenuto nella coda
+			if(CheckCoda(Token)){ //controlla se il token è già nella sista
 
 				for (MatchRequest matchRequest : UtentiInAttesa) { //cerco l'elemento che mi interessa e aggiorno il suo timestamp
 
 					if(matchRequest.getToken().equals(Token)){
 						Date reset = new Date(); //automaticamente mette come valore di default la data corrente.
 						matchRequest.setTempo(reset);
-						System.out.println("valore aggiornato della richiesta");
+						System.out.println("Ho aggionato il volore di della data dopo la richiesta al gioco");
 					}
 
 				}
@@ -112,13 +112,17 @@ public class GestioneCoda implements Runnable {
 			lock.unlock();
 		}
 	}
+	
+	
 
 
 	//metodo checkcoda()
 	//mi controlla se l'utente è già nella coda-> contains elemento in coda e tornerà true o false.
 	public static boolean CheckCoda(String Token){
-		if(UtentiInAttesa.contains(Token)){
-			return true;
+		for (MatchRequest matchRequest : UtentiInAttesa) {
+			if(matchRequest.getToken()==Token){
+				return true;
+			}
 		}
 		return false;
 	}
