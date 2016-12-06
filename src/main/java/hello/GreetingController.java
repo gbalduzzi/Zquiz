@@ -162,6 +162,7 @@ public class GreetingController {
 	public <T> T SearchMatch(@RequestParam(value="Token",defaultValue="") String Token) throws InterruptedException{
 
 		//controllo se il token esiste nella tabella dei token. (eventualmente salvo l'utente associato al token per controlli successivi).
+		// caso token non esistente funzionante
 		String User =   WriteToMySql.ConnectionToMySql_SelectUsername(Token);
 		if(User == null){
 			Error e = new Error(1, "Token inviato non riconosciuto. Potrebbe essere scaduto");
@@ -170,6 +171,7 @@ public class GreetingController {
 
 
 		//bisogna controllare anche se il token inviato è al momento in una tabella della partita attiva.
+		// caso altra partita già attiva funzionante
 		ResultSet x = WriteToMySql.ConnectionToMySql_CheckPartitaAttiva(Token);
 		try {
 			if(x.next()){
@@ -193,13 +195,16 @@ public class GreetingController {
 		 * }
 		 */
 		Thread.sleep(500);
+		
+		//caso creazione partita se ci sono almeno 2 giocatori funzionante
 		ResultSet temp2 = WriteToMySql.ConnectionToMySql_CheckPartitaAttiva(Token); //do per scontato che la partita a questo punto sia appena stata inserita.
 		try {
 			if(temp2.next()){
 					Partita p = new Partita(temp2.getInt(1), User.equals(temp2.getString(2))? temp2.getString(3) : temp2.getString(2) );
 					return (T)p;
+					// caso unico utente in coda funzionante
 			}else if(GestioneCoda.CheckCoda(Token)){
-				Error e3 = new Error(0, "Stismo ricercando una partita per te");
+				Error e3 = new Error(0, "Stiamo ricercando una partita per te");
 				return (T)e3;
 			}
 		} catch (SQLException e) {

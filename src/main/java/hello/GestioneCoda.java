@@ -90,37 +90,33 @@ public class GestioneCoda implements Runnable {
 		lock.lock();
 		try{
 			if(CheckCoda(Token)){ //controlla se il token è già nella sista
-
 				for (MatchRequest matchRequest : UtentiInAttesa) { //cerco l'elemento che mi interessa e aggiorno il suo timestamp
-
 					if(matchRequest.getToken().equals(Token)){
 						Date reset = new Date(); //automaticamente mette come valore di default la data corrente.
 						matchRequest.setTempo(reset);
-						System.out.println("Ho aggionato il volore di della data dopo la richiesta al gioco");
+						System.out.println("Ho aggiornato il valore della data dopo la nuova richiesta al gioco");
+						Stamp();
 					}
-
 				}
-
 			}else{//altrimenti se non è già contenuto aggiungo l'elemento alla coda.
-
 				UtentiInAttesa.offer(x);
 				Contatore++;
-				System.out.println("valore aaggiunto");
+				System.out.println("valore aggiunto");
 				Stamp();
 			}
 		}finally{
 			lock.unlock();
 		}
 	}
-	
-	
+
+
 
 
 	//metodo checkcoda()
 	//mi controlla se l'utente è già nella coda-> contains elemento in coda e tornerà true o false.
 	public static boolean CheckCoda(String Token){
 		for (MatchRequest matchRequest : UtentiInAttesa) {
-			if(matchRequest.getToken()==Token){
+			if(matchRequest.getToken().equals(Token)){
 				return true;
 			}
 		}
