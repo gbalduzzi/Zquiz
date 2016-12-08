@@ -1,5 +1,6 @@
 package hello;
 
+//calsse da inviare col json quando riesco, dopo una richiesta dell'utente a inviare un apartita.
 public class Partita {
 
 	private int MatchID;

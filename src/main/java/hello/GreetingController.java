@@ -185,28 +185,23 @@ public class GreetingController {
 
 
 		GestioneCoda.RequestGame(Token); //inserisce nella coda la richiesta e in caso aggiorna
-
-		/**
-		 * metodo per aspettare un secondo, così do il tempo di inserire la partita.
-		 * if(writesoMysql.CheckPartitaAttiva() != null){
-		 * 		json partita trovata -> matchID e avversario che prendo dal resultset.
-		 * } else(se partiota in cosa){
-		 * 		json -> aspetta stronzo sta cercando una partita
-		 * }
-		 */
-		Thread.sleep(500);
 		
 		//caso creazione partita se ci sono almeno 2 giocatori funzionante
 		ResultSet temp2 = WriteToMySql.ConnectionToMySql_CheckPartitaAttiva(Token); //do per scontato che la partita a questo punto sia appena stata inserita.
 		try {
+			
 			if(temp2.next()){
 					Partita p = new Partita(temp2.getInt(1), User.equals(temp2.getString(2))? temp2.getString(3) : temp2.getString(2) );
+					/**
+					 * genero l'oggetto partita (con già tutte le domande previste)
+					 *  e lo aggiungo alla lista delle partite attive.
+					 */
 					return (T)p;
-					// caso unico utente in coda funzionante
 			}else if(GestioneCoda.CheckCoda(Token)){
 				Error e3 = new Error(0, "Stiamo ricercando una partita per te");
 				return (T)e3;
 			}
+			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -214,4 +209,32 @@ public class GreetingController {
 
 		return null;
 	}
+	
+	
+	//Richiesta domanda
+	@RequestMapping(method= RequestMethod.GET, value = "/question")
+	public <T> T Question(@RequestParam(value="MatchID",defaultValue="") String MatchID, @RequestParam(value="Number",defaultValue="1") String Number, @RequestParam(value="Token",defaultValue="") String Token){
+		
+		//controllo che siano stati inseriti tutti i campi
+		if(MatchID.equals("") || Token.equals("")){
+			Error e2= new Error(2, "Non hai inserito tutti i campi, manca o il MatchId o il Token");
+			return (T) e2;
+		}
+		
+		
+		/**
+		 * se la partita è attiva(presente nella lista){
+		 * 		Seleziona e invia domanda dall'oggetto partita prelevato dalla lista
+		 * }
+		 * se partita non attiva(non presente nella lista){
+		 * 		error la partita è scaduta cazzone
+		 * }
+		 */
+		
+		
+		
+		return null;
+	}
+
+	
 }

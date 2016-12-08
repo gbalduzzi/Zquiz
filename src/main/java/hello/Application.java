@@ -14,5 +14,10 @@ public class Application {
         GestioneCoda gestoreCoda= new GestioneCoda();
         Thread gc = new Thread(gestoreCoda);
         gc.start();
+        
+        //thread che controlla le partite attive
+        GestionePartita gestorePartita= new GestionePartita();
+        Thread gp = new Thread(gestorePartita);
+        gp.start();
     }
 }
