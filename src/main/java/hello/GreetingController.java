@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mysql.jdbc.Connection;
+
+import database.DBQueries;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -41,7 +44,7 @@ public class GreetingController {
 			return (T)x;
 		}
 
-		ResultSet data = WriteToMySql.ConnectionToMySql_SelectUtente2(User);
+		ResultSet data = DBQueries.getUser(User);
 		try {
 			//caso 2 : utente già registrato			
 			if(data.next()){
@@ -50,7 +53,7 @@ public class GreetingController {
 			}
 			// caso 3 : utente non ancora registrato
 			else{
-				WriteToMySql.ConnectionToMySql_InsertElement(User, md5(Password), Nome, Cognome);
+				DBQueries.insertUser(User, md5(Password), Nome, Cognome);
 
 				//genero il token
 				String token = User+SessionGenerator.nextSessionId();
@@ -62,7 +65,7 @@ public class GreetingController {
 				date= GreetingController.addDays(date, 1);
 				long time= date.getTime();
 				java.sql.Timestamp sqlTimestamp= new java.sql.Timestamp(time);
-				WriteToMySql.ConnectionToMySql_InsertToken(token, User, sqlTimestamp);
+				DBQueries.insertToken(token, User, sqlTimestamp);
 				Token t = new Token(token);
 				return (T)t;
 			}
@@ -84,11 +87,11 @@ public class GreetingController {
 			Error x = new Error(1, "manca o utente o password");
 			return (T)x;
 		}
-		ResultSet data = WriteToMySql.ConnectionToMySql_SelectUtente2(User, Password);
+		ResultSet data = DBQueries.authUser(User, Password);
 		try {
 			//caso 2 : utente già registrato
 			if(data.next()){
-				ResultSet tok = WriteToMySql.ConnectionToMySql_SelectToken(User);
+				ResultSet tok = DBQueries.selectToken(User);
 				while(tok.next()){
 					token = tok.getString("Token");
 				}
@@ -113,7 +116,7 @@ public class GreetingController {
 	@RequestMapping(method= RequestMethod.GET, value = "/user")
 	public User user(@RequestParam(value="User",defaultValue="") String User){
 
-		ResultSet data = WriteToMySql.ConnectionToMySql_SelectUtenteCompleto(User);
+		ResultSet data = DBQueries.getUser(User);
 		try {
 			if(data.next()){
 				String u = data.getString("Username");
@@ -163,7 +166,7 @@ public class GreetingController {
 
 		//controllo se il token esiste nella tabella dei token. (eventualmente salvo l'utente associato al token per controlli successivi).
 		// caso token non esistente funzionante
-		String User =   WriteToMySql.ConnectionToMySql_SelectUsername(Token);
+		String User =   DBQueries.getUserFromToken(Token);
 		if(User == null){
 			Error e = new Error(1, "Token inviato non riconosciuto. Potrebbe essere scaduto");
 			return (T)e;
@@ -172,7 +175,7 @@ public class GreetingController {
 
 		//bisogna controllare anche se il token inviato è al momento in una tabella della partita attiva.
 		// caso altra partita già attiva funzionante
-		ResultSet x = WriteToMySql.ConnectionToMySql_CheckPartitaAttiva(Token);
+		ResultSet x = DBQueries.getActiveMatchesByToken(Token);
 		try {
 			if(x.next()){
 				Error e2 = new Error(2, "Hai una partita già attiva");
@@ -187,7 +190,7 @@ public class GreetingController {
 		GestioneCoda.RequestGame(Token); //inserisce nella coda la richiesta e in caso aggiorna
 		
 		//caso creazione partita se ci sono almeno 2 giocatori funzionante
-		ResultSet temp2 = WriteToMySql.ConnectionToMySql_CheckPartitaAttiva(Token); //do per scontato che la partita a questo punto sia appena stata inserita.
+		ResultSet temp2 = DBQueries.getActiveMatchesByToken(Token); //do per scontato che la partita a questo punto sia appena stata inserita.
 		try {
 			
 			if(temp2.next()){

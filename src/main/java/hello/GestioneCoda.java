@@ -16,6 +16,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.tomcat.jni.Lock;
 import org.hamcrest.core.IsInstanceOf;
 import org.springframework.boot.logging.LoggingApplicationListener;
+
+import database.DBQueries;
+
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.*;
@@ -57,7 +60,7 @@ public class GestioneCoda implements Runnable {
 					Contatore--;
 					t2 = UtentiInAttesa.remove();
 					Contatore--;
-					WriteToMySql.ConnectionToMySql_CreateMatch(t1.getToken(), t2.getToken());
+					DBQueries.createMatch(t1.getToken(), t2.getToken());
 					System.out.println("due elementi sono stati inseriti nella tabella e tolti dalla coda");
 					Stamp();
 				}
