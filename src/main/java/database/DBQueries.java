@@ -27,6 +27,7 @@ public class DBQueries {
 	 * usato nel metodo /register
 	 */
 	public static void insertUser(String username, String password, String firstName, String secondName){
+		password = MD5.encode(password);
 
 		Connection connect = DBConnection.getConnection();
 		

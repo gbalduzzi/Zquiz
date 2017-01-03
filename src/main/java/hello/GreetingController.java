@@ -2,30 +2,19 @@ package hello;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.Locale;
-import java.util.concurrent.atomic.AtomicLong;
 
-import javax.xml.crypto.Data;
-
-import java.security.SecureRandom;
-import java.math.BigInteger;
-import java.nio.charset.Charset;
-
-import org.apache.tomcat.util.security.MD5Encoder;
-import org.springframework.format.datetime.joda.DateTimeParser;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mysql.jdbc.Connection;
-
 import database.DBQueries;
+import utils.SessionGenerator;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+/**
+ * In questa classe vengono definite le routes delle nostre API
+ *
+ */
 
 
 @RestController
@@ -35,7 +24,7 @@ public class GreetingController {
 	// metodo post per registrazione utente
 
 	@RequestMapping(method= RequestMethod.POST, value = "/register")
-	public <T> T Register(@RequestParam(value="User",defaultValue="" ) String User, @RequestParam(value="Password", defaultValue="") String Password, 
+	public <T extends Object> T Register(@RequestParam(value="User",defaultValue="" ) String User, @RequestParam(value="Password", defaultValue="") String Password, 
 			@RequestParam(value="Nome",defaultValue="" ) String Nome, @RequestParam(value="Cognome",defaultValue="" ) String Cognome ){
 
 		// caso 1 : mancano utente o password
@@ -48,12 +37,12 @@ public class GreetingController {
 		try {
 			//caso 2 : utente già registrato			
 			if(data.next()){
-				Error x = new Error(1, "L'untente che stai provando a registrare è già presente");
+				Error x = new Error(1, "L'utente che stai provando a registrare è già presente");
 				return (T)x;
 			}
 			// caso 3 : utente non ancora registrato
 			else{
-				DBQueries.insertUser(User, md5(Password), Nome, Cognome);
+				DBQueries.insertUser(User, Password, Nome, Cognome);
 
 				//genero il token
 				String token = User+SessionGenerator.nextSessionId();
@@ -61,12 +50,10 @@ public class GreetingController {
 				//magari più tardi andrò a controllare se il token appena generato esiste già
 
 				//genero il timestamp x inserire il token.
-				java.util.Date date = new java.util.Date();
-				date= GreetingController.addDays(date, 1);
-				long time= date.getTime();
-				java.sql.Timestamp sqlTimestamp= new java.sql.Timestamp(time);
+				java.sql.Timestamp sqlTimestamp= SessionGenerator.getFutureTimestamp(1);
 				DBQueries.insertToken(token, User, sqlTimestamp);
 				Token t = new Token(token);
+				
 				return (T)t;
 			}
 		} catch (SQLException e) {
@@ -77,7 +64,6 @@ public class GreetingController {
 
 
 	// metodo post per login utente
-
 	@RequestMapping(method= RequestMethod.POST, value = "/authenticate")
 	public <T> T Authenticate(@RequestParam(value="User",defaultValue="" ) String User, @RequestParam(value="Password", defaultValue="") String Password){
 		String token = null;
@@ -87,6 +73,7 @@ public class GreetingController {
 			Error x = new Error(1, "manca o utente o password");
 			return (T)x;
 		}
+		
 		ResultSet data = DBQueries.authUser(User, Password);
 		try {
 			//caso 2 : utente già registrato
@@ -95,7 +82,11 @@ public class GreetingController {
 				while(tok.next()){
 					token = tok.getString("Token");
 				}
-				//Error x = new Error(0, "accesso effettuato come "+User+"  Token: "+token);
+				
+				/*
+				 *  E se l'utente fosse registrato ma non avesse un token valido attivo?
+				 */
+				
 				return (T)token;
 			}
 			// caso 3 : utente non ancora registrato
@@ -127,40 +118,12 @@ public class GreetingController {
 				return ut;
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
 	}
-
-
-
-
-	//metodo per aggiungere 30g alla data.
-	public static Date addDays(Date d, int mese)
-	{
-		d.setMonth(d.getMonth() + mese);
-		return d;
-	}
-
-	// metodo per criptare la stringa in md5
-
-	public static String md5(String source) {
-		String md5 = null;
-		try {
-			MessageDigest mdEnc = MessageDigest.getInstance("MD5"); //Encryption algorithm
-			mdEnc.update(source.getBytes(), 0, source.length());
-			md5 = new BigInteger(1, mdEnc.digest()).toString(16); // Encrypted string
-		} 
-		catch (Exception ex) {
-			return null;
-		}
-		return md5;
-	}
-	
 	
 	//prova a fare la richiesta per una partita
-
 	@RequestMapping(method= RequestMethod.GET, value = "/searchmatch")
 	public <T> T SearchMatch(@RequestParam(value="Token",defaultValue="") String Token) throws InterruptedException{
 
@@ -172,7 +135,6 @@ public class GreetingController {
 			return (T)e;
 		}
 
-
 		//bisogna controllare anche se il token inviato è al momento in una tabella della partita attiva.
 		// caso altra partita già attiva funzionante
 		ResultSet x = DBQueries.getActiveMatchesByToken(Token);
@@ -182,10 +144,8 @@ public class GreetingController {
 				return (T)e2;
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 
 		GestioneCoda.RequestGame(Token); //inserisce nella coda la richiesta e in caso aggiorna
 		
@@ -206,7 +166,6 @@ public class GreetingController {
 			}
 			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

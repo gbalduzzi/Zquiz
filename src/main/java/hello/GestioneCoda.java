@@ -1,27 +1,13 @@
 package hello;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Timer;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
-
-import org.apache.tomcat.jni.Lock;
-import org.hamcrest.core.IsInstanceOf;
-import org.springframework.boot.logging.LoggingApplicationListener;
 
 import database.DBQueries;
 
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.*;
 
 
 
@@ -89,7 +75,7 @@ public class GestioneCoda implements Runnable {
 	//metodo per fare la richiesta di gioco.
 	public static void RequestGame(String Token){
 
-		MatchRequest x = new MatchRequest(Token); //genoro la tupla da mettere nella coda.
+		MatchRequest x = new MatchRequest(Token); //genero la tupla da mettere nella coda.
 		lock.lock();
 		try{
 			if(CheckCoda(Token)){ //controlla se il token è già nella sista
