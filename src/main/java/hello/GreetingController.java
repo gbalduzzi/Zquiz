@@ -33,32 +33,28 @@ public class GreetingController {
 			return (T)x;
 		}
 
-		ResultSet data = DBQueries.getUser(User);
-		try {
-			//caso 2 : utente già registrato			
-			if(data.next()){
-				Error x = new Error(1, "L'utente che stai provando a registrare è già presente");
-				return (T)x;
-			}
-			// caso 3 : utente non ancora registrato
-			else{
-				DBQueries.insertUser(User, Password, Nome, Cognome);
+		User ut = DBQueries.getUser(User);
 
-				//genero il token
-				String token = User+SessionGenerator.nextSessionId();
+		//caso 2 : utente già registrato			
+		if(ut != null){
+			Error x = new Error(1, "L'utente che stai provando a registrare è già presente");
+			return (T)x;
+		}
+		// caso 3 : utente non ancora registrato
+		else{
+			DBQueries.insertUser(User, Password, Nome, Cognome);
 
-				//magari più tardi andrò a controllare se il token appena generato esiste già
+			//genero il token
+			String token = User+SessionGenerator.nextSessionId();
 
-				//genero il timestamp x inserire il token.
-				java.sql.Timestamp sqlTimestamp= SessionGenerator.getFutureTimestamp(1);
-				DBQueries.insertToken(token, User, sqlTimestamp);
-				Token t = new Token(token);
-				
-				return (T)t;
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return null;
+			//magari più tardi andrò a controllare se il token appena generato esiste già
+
+			//genero il timestamp x inserire il token.
+			java.sql.Timestamp sqlTimestamp= SessionGenerator.getFutureTimestamp(1);
+			DBQueries.insertToken(token, User, sqlTimestamp);
+			Token t = new Token(token);
+
+			return (T)t;
 		}
 	}
 
@@ -107,18 +103,9 @@ public class GreetingController {
 	@RequestMapping(method= RequestMethod.GET, value = "/user")
 	public User user(@RequestParam(value="User",defaultValue="") String User){
 
-		ResultSet data = DBQueries.getUser(User);
-		try {
-			if(data.next()){
-				String u = data.getString("Username");
-				String n = data.getString("Nome");
-				String c = data.getString("Cognome");
-				int v = data.getInt("Vittorie");
-				User ut = new User(u, n, c,v);
-				return ut;
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		User ut = DBQueries.getUser(User);
+		if(ut != null){
+			return ut;
 		}
 		return null;
 	}

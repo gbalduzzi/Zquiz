@@ -8,6 +8,7 @@ import java.util.Random;
 
 import com.mysql.jdbc.PreparedStatement;
 
+import hello.User;
 import utils.MD5;
 
 public class DBQueries {
@@ -105,15 +106,16 @@ public class DBQueries {
 	// metodo che restituisce un utente
 	// usato nel metodo /register
 
-	public static ResultSet getUser(String utente){
+	public static User getUser(String utente){
 		
 		Connection connect = DBConnection.getConnection();
-		ResultSet data = null;
+		User ut = null;
 		
 		try {
 			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT * FROM utente WHERE Username = ?");
 			statement.setString(1, utente);
-			data = statement.executeQuery();
+			ResultSet data = statement.executeQuery();
+			ut = User.createUserFromResultSet(data);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			DBConnection.rollbackConnection(connect); //Evito di lasciare operazioni "parziali" sul DB		
@@ -121,7 +123,7 @@ public class DBQueries {
 			DBConnection.closeConnection(connect);
 		}
 		
-		return data;
+		return ut;
 
 	}
 
@@ -257,10 +259,7 @@ public class DBQueries {
 
 	public static void main(String[] args) {
 
-
-		//insertUser("BLABLA", "PROVA", "PINCO", "PALLO");
-		
-		
+		insertUser("BLABLA", "PROVA", "PINCO", "PALLO");
 		
 		//ConnectionToMySql_InsertElement("GBalduz", "clusone", "Giorgio", "Balduzzi");
 		//ConnectionToMySql_InsertElement("DBertoc", "castione", "Danilo", "Bertocchi");

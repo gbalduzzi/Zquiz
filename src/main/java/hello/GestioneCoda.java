@@ -78,7 +78,7 @@ public class GestioneCoda implements Runnable {
 		MatchRequest x = new MatchRequest(Token); //genero la tupla da mettere nella coda.
 		lock.lock();
 		try{
-			if(CheckCoda(Token)){ //controlla se il token è già nella sista
+			if(CheckCoda(Token)){ //controlla se il token è già nella coda
 				for (MatchRequest matchRequest : UtentiInAttesa) { //cerco l'elemento che mi interessa e aggiorno il suo timestamp
 					if(matchRequest.getToken().equals(Token)){
 						Date reset = new Date(); //automaticamente mette come valore di default la data corrente.

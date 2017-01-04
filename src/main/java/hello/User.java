@@ -1,5 +1,8 @@
 package hello;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class User {
 
     
@@ -29,6 +32,25 @@ public class User {
 
 	public int getVittorie() {
 		return Vittorie;
+	}
+	
+	public static User createUserFromResultSet(ResultSet data) {
+		try {
+			if (data.next()) {
+				String u = data.getString("Username");
+				String n = data.getString("Nome");
+				String c = data.getString("Cognome");
+				int v = data.getInt("Vittorie");
+				User ut = new User(u, n, c,v);
+				return ut;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+		
+		
 	}
 
     
