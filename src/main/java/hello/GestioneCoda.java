@@ -73,11 +73,19 @@ public class GestioneCoda implements Runnable {
 	}
 
 	//metodo per fare la richiesta di gioco.
-	public static void RequestGame(String Token){
+	public static Partita RequestGame(String Token){
 
 		MatchRequest x = new MatchRequest(Token); //genero la tupla da mettere nella coda.
 		lock.lock();
 		try{
+			Partita newMatch = DBQueries.getActiveMatchesByToken(Token); //do per scontato che la partita a questo punto sia appena stata inserita.
+
+			if(newMatch != null){
+				
+				return newMatch;
+				
+			}
+			
 			if(CheckCoda(Token)){ //controlla se il token è già nella coda
 				for (MatchRequest matchRequest : UtentiInAttesa) { //cerco l'elemento che mi interessa e aggiorno il suo timestamp
 					if(matchRequest.getToken().equals(Token)){
@@ -96,6 +104,7 @@ public class GestioneCoda implements Runnable {
 		}finally{
 			lock.unlock();
 		}
+		return null;
 	}
 
 

@@ -114,30 +114,15 @@ public class GreetingController {
 			return (T)e;
 		}
 
-		//bisogna controllare anche se il token inviato è al momento in una tabella della partita attiva.
-		// caso altra partita già attiva funzionante
-		Partita ActiveMatch = DBQueries.getActiveMatchesByToken(Token);
+		Partita result= GestioneCoda.RequestGame(Token); //inserisce nella coda la richiesta e in caso aggiorna
 		
-		if(ActiveMatch != null){
-			Error e2 = new Error(2, "Hai una partita già attiva");
-			return (T)e2;
-		}
-
-		GestioneCoda.RequestGame(Token); //inserisce nella coda la richiesta e in caso aggiorna
-		
-		//caso creazione partita se ci sono almeno 2 giocatori funzionante
-		Partita newMatch = DBQueries.getActiveMatchesByToken(Token); //do per scontato che la partita a questo punto sia appena stata inserita.
-
-		if(newMatch != null){
+		if(result != null){
 			
-			return (T) newMatch;
+			return (T) result;
 			
-		}else if(GestioneCoda.CheckCoda(Token)){
-			Error e3 = new Error(0, "Stiamo ricercando una partita per te");
-			return (T)e3;
+		}else{
+			return (T)new Error(0, "stiamo cercando un partita per te");
 		}
-
-		return null;
 	}
 	
 	
