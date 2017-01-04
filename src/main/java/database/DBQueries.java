@@ -8,6 +8,8 @@ import java.util.Random;
 
 import com.mysql.jdbc.PreparedStatement;
 
+import hello.Partita;
+import hello.Token;
 import hello.User;
 import utils.MD5;
 
@@ -130,44 +132,46 @@ public class DBQueries {
 	// metodo select utente che restituisce utente e password di un utente
 	// usato nel metodo /authenticate
 
-	public static ResultSet authUser(String user, String password){
+	public static User authUser(String user, String password){
 		password = MD5.encode(password);
-		ResultSet data = null;
+		User ut = null;
 		Connection connect = DBConnection.getConnection();
 		
 		try {
 			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT * FROM utente WHERE Username = ? AND Password = ?");
 			statement.setString(1, user);
 			statement.setString(2, password);
-			data = statement.executeQuery();
+			ResultSet data = statement.executeQuery();
+			ut = User.createUserFromResultSet(data);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			DBConnection.rollbackConnection(connect); //Evito di lasciare operazioni "parziali" sul DB		
 		} finally {
 			DBConnection.closeConnection(connect);
 		}
-		return data;
+		return ut;
 	}
 
 	// metodo che restituisce il token legato ad un utente
 	// usato nel metodo /authenticate
 
-	public static ResultSet selectToken(String user){
+	public static Token selectToken(String user){
 
-		ResultSet data = null;
+		Token t = null;
 		Connection connect = DBConnection.getConnection();
 		
 		try {
 			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT Token FROM token WHERE Username = ?");
 			statement.setString(1, user);
-			data = statement.executeQuery();
+			ResultSet data = statement.executeQuery();
+			t = Token.createTokenFromResultSet(data);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			DBConnection.rollbackConnection(connect); //Evito di lasciare operazioni "parziali" sul DB		
 		} finally {
 			DBConnection.closeConnection(connect);
 		}
-		return data;
+		return t;
 	}
 
 	// metodo che restituisce il token l'utente legato al token
@@ -201,18 +205,19 @@ public class DBQueries {
 	//metodo che torna le partite associate(resultset) al token con stato uguale a 1 (il valore che ricevo è lo user)
 	//torna tutti gli elementi della riga.
 
-	public static ResultSet getActiveMatchesByToken(String token){
+	public static Partita getActiveMatchesByToken(String token){
 		String utente = DBQueries.getUserFromToken(token);
 
 		Connection connect = DBConnection.getConnection();
-		ResultSet data = null;
+		Partita p = null;
 		
 		try {
 			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT * FROM partita WHERE Status =? AND (Username1= ? OR Username2=?)");
 			statement.setInt(1, 1);
 			statement.setString(2, utente);
 			statement.setString(3, utente);
-			data = statement.executeQuery();
+			ResultSet data = statement.executeQuery();
+			p = Partita.createPartitaFromResultSet(data, utente);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			DBConnection.rollbackConnection(connect); //Evito di lasciare operazioni "parziali" sul DB		
@@ -220,7 +225,7 @@ public class DBQueries {
 			DBConnection.closeConnection(connect);
 		}
 		
-		return data;
+		return p;
 
 	}
 

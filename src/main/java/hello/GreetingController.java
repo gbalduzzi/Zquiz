@@ -70,30 +70,22 @@ public class GreetingController {
 			return (T)x;
 		}
 		
-		ResultSet data = DBQueries.authUser(User, Password);
-		try {
-			//caso 2 : utente già registrato
-			if(data.next()){
-				ResultSet tok = DBQueries.selectToken(User);
-				while(tok.next()){
-					token = tok.getString("Token");
-				}
-				
-				/*
-				 *  E se l'utente fosse registrato ma non avesse un token valido attivo?
-				 */
-				
-				return (T)token;
-			}
-			// caso 3 : utente non ancora registrato
-			else{
-				Error x = new Error(1, "utente non esistente, effettuare la registrazione o verificare di avere inserito username e password corretti");
-				return (T)x;
-			}
-		} 
-		catch (SQLException e) {
-			e.printStackTrace();
-			return null;
+		User ut = DBQueries.authUser(User, Password);
+
+		//caso 2 : utente già registrato
+		if(ut != null){
+			Token tok = DBQueries.selectToken(User);
+
+			/*
+			 *  E se l'utente fosse registrato ma non avesse un token valido attivo?
+			 */
+
+			return (T)tok;
+		}
+		// caso 3 : utente non ancora registrato
+		else{
+			Error x = new Error(1, "utente non esistente, effettuare la registrazione o verificare di avere inserito username e password corretti");
+			return (T)x;
 		}
 	}
 
@@ -124,36 +116,25 @@ public class GreetingController {
 
 		//bisogna controllare anche se il token inviato è al momento in una tabella della partita attiva.
 		// caso altra partita già attiva funzionante
-		ResultSet x = DBQueries.getActiveMatchesByToken(Token);
-		try {
-			if(x.next()){
-				Error e2 = new Error(2, "Hai una partita già attiva");
-				return (T)e2;
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		Partita ActiveMatch = DBQueries.getActiveMatchesByToken(Token);
+		
+		if(ActiveMatch != null){
+			Error e2 = new Error(2, "Hai una partita già attiva");
+			return (T)e2;
 		}
 
 		GestioneCoda.RequestGame(Token); //inserisce nella coda la richiesta e in caso aggiorna
 		
 		//caso creazione partita se ci sono almeno 2 giocatori funzionante
-		ResultSet temp2 = DBQueries.getActiveMatchesByToken(Token); //do per scontato che la partita a questo punto sia appena stata inserita.
-		try {
+		Partita newMatch = DBQueries.getActiveMatchesByToken(Token); //do per scontato che la partita a questo punto sia appena stata inserita.
+
+		if(newMatch != null){
 			
-			if(temp2.next()){
-					Partita p = new Partita(temp2.getInt(1), User.equals(temp2.getString(2))? temp2.getString(3) : temp2.getString(2) );
-					/**
-					 * genero l'oggetto partita (con già tutte le domande previste)
-					 *  e lo aggiungo alla lista delle partite attive.
-					 */
-					return (T)p;
-			}else if(GestioneCoda.CheckCoda(Token)){
-				Error e3 = new Error(0, "Stiamo ricercando una partita per te");
-				return (T)e3;
-			}
+			return (T) newMatch;
 			
-		} catch (SQLException e) {
-			e.printStackTrace();
+		}else if(GestioneCoda.CheckCoda(Token)){
+			Error e3 = new Error(0, "Stiamo ricercando una partita per te");
+			return (T)e3;
 		}
 
 		return null;
