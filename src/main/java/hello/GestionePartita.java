@@ -6,7 +6,7 @@ public class GestionePartita implements Runnable{
 	
 	//Lista delle partite attive (megluo usare dictionary) (key-> matchID, Oggetto contenente tutti i dati)
 	//Ogni oggetto della lista conterrà già tutte le domande.
-	Dictionary<int MatchID, Questions x> PartiteAttive;
+	//Dictionary<int MatchID, Questions x> PartiteAttive;
 
 	public void run(){
 		

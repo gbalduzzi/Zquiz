@@ -20,4 +20,6 @@ public class Application {
         Thread gp = new Thread(gestorePartita);
         gp.start();
     }
+    
+    
 }

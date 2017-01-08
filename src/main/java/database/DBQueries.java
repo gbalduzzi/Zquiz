@@ -288,7 +288,25 @@ public class DBQueries {
 		return q;
 	}
 
-	
+
+	//CreatePartita()
+	//metodo che riceve in ingresso i due token.. genera un matchid casuale e inserisce la partita nella tabella
+
+	public static void EndMatch(int match_id){
+
+		Connection connect = DBConnection.getConnection();
+		
+		try {
+			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("UPDATE partita SET Status = 0 WHERE Match_ID = ?  ");
+			statement.setInt(1, match_id);
+			statement.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			DBConnection.rollbackConnection(connect); //Evito di lasciare operazioni "parziali" sul DB		
+		} finally {
+			DBConnection.closeConnection(connect);
+		}
+	}
 	
 	public static void main(String[] args) {
 
@@ -331,6 +349,7 @@ public class DBQueries {
 		System.out.println(q1.getDomandaSingola1().getRisposta2());
 		System.out.println(q1.getDomandaSingola1().getRisposta3());
 		
+		EndMatch(87);
 	}
 
 }
