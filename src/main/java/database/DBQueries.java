@@ -8,7 +8,9 @@ import java.util.Random;
 
 import com.mysql.jdbc.PreparedStatement;
 
+import hello.DomandaSingola;
 import hello.Partita;
+import hello.Questions;
 import hello.Token;
 import hello.User;
 import utils.MD5;
@@ -260,11 +262,37 @@ public class DBQueries {
 		}
 	}
 
+	public static Questions selectDomande(){
 
+		Connection connect = DBConnection.getConnection();
+		Questions q = null;
+		try {
+			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT * FROM domanda ORDER BY RAND() LIMIT 4");
+			ResultSet data = statement.executeQuery();
+				DomandaSingola d1 = DomandaSingola.createDomandaSingolaFromResultSet(data);
+				DomandaSingola d2 = DomandaSingola.createDomandaSingolaFromResultSet(data);
+				DomandaSingola d3 = DomandaSingola.createDomandaSingolaFromResultSet(data);
+				DomandaSingola d4 = DomandaSingola.createDomandaSingolaFromResultSet(data);
+				System.out.println(d1.getDomanda());
+				System.out.println(d2.getDomanda());
+				System.out.println(d3.getDomanda());
+				System.out.println(d4.getDomanda());
+				q = new Questions(d1, d2, d3, d4);
+				System.out.println(q.getDomandaSingola1().getDomanda());
+		} catch (SQLException e) {
+			e.printStackTrace();
+			DBConnection.rollbackConnection(connect); //Evito di lasciare operazioni "parziali" sul DB		
+		} finally {
+			DBConnection.closeConnection(connect);
+		}
+		return q;
+	}
 
+	
+	
 	public static void main(String[] args) {
 
-		insertUser("BLABLA", "PROVA", "PINCO", "PALLO");
+		//insertUser("BLABLA", "PROVA", "PINCO", "PALLO");
 		
 		//ConnectionToMySql_InsertElement("GBalduz", "clusone", "Giorgio", "Balduzzi");
 		//ConnectionToMySql_InsertElement("DBertoc", "castione", "Danilo", "Bertocchi");
@@ -287,7 +315,7 @@ public class DBQueries {
 		//System.out.println(x);
 
 		//System.out.println("Partita martinparre:");
-		getActiveMatchesByToken("martinparres1jbl49tdarf4g3qt02va5qt3b");
+		/*getActiveMatchesByToken("martinparres1jbl49tdarf4g3qt02va5qt3b");
 		System.out.println("partita attiva dave94:");
 		getActiveMatchesByToken("dave941t1j63ivum2takn1g2rv0dmmgg");
 		System.out.println("Partita attiva d.bertoc:");
@@ -297,6 +325,12 @@ public class DBQueries {
 		createMatch("g.balduzjoebtdp6k96q4ogrdnks74f522", "nanniman7shrs0kqb4ti7ohhlfufev01f3");
 		System.out.println("crea partita tra danilo e tia");
 		createMatch("d.bertoc8d5uf5ju8dm8p83vvmauub0kgj", "tiapera7cjsm2v1per79mgna4inmi4gm8");
+	*/
+	
+		Questions q1 = selectDomande();
+		System.out.println(q1.getDomandaSingola1().getRisposta2());
+		System.out.println(q1.getDomandaSingola1().getRisposta3());
+		
 	}
 
 }
