@@ -18,7 +18,6 @@ public class DomandaSingola {
 		this.DomandeRisposte[3] = r3;
 		this.DomandeRisposte[4] = r4;
 		this.setRispostaGiusta(giusta);
-		
 	}
 	
 	public String getDomanda(){

@@ -131,11 +131,16 @@ public class GreetingController {
 	public <T> T Question(@RequestParam(value="MatchID",defaultValue="") String MatchID, @RequestParam(value="Number",defaultValue="1") String Number, @RequestParam(value="Token",defaultValue="") String Token){
 		
 		//controllo che siano stati inseriti tutti i campi
-		if(MatchID.equals("") || Token.equals("")){
+		if(MatchID.equals("") || Token.equals("") || Number.equals("")){
 			Error e2= new Error(2, "Non hai inserito tutti i campi, manca o il MatchId o il Token");
 			return (T) e2;
 		}
 		
+		//aggiungere il controllo per controllare se il numero della domanda è quello corretto
+		
+		if(GestionePartita.PartiteAttive.containsKey(MatchID)){
+			//aggiungo partita
+		}
 		
 		/**
 		 * se la partita è attiva(presente nella lista){

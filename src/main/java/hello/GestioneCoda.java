@@ -24,7 +24,7 @@ public class GestioneCoda implements Runnable {
 
 	public GestioneCoda(){}
 
-	public void run() {
+	public void run() { //aggiungere qualcosa per far dormire un po' il thread fra un ciclo e l'altro.
 		//codice per gestire la coda
 		while(true){
 			//controllo se qualche timeout è scaduto....
@@ -33,7 +33,7 @@ public class GestioneCoda implements Runnable {
 				Iterator<MatchRequest> it = UtentiInAttesa.iterator();
 				while(it.hasNext()) {
 					MatchRequest matchRequest = it.next();
-					if(getDateDiff(matchRequest.getTempo())>10000000){ //se è 5 secondi che non riceve più una richiesta verrà rimosso.
+					if(getDateDiff(matchRequest.getTempo())>10000000){ //se è 5 secondi che non riceve più una richiesta verrà rimosso( per testare abbiamo aumentato il tempo)
 						it.remove();
 						Contatore--;
 						System.out.println("elemento eliminato dalla coda perchè il tempo è scaduto \n");
@@ -41,12 +41,13 @@ public class GestioneCoda implements Runnable {
 					}
 				}
 
-				while(Contatore >= 2){
+				while(Contatore >= 2){ //accoppio i priomi due giocatori nella coda.
 					t1= UtentiInAttesa.remove();
 					Contatore--;
 					t2 = UtentiInAttesa.remove();
 					Contatore--;
 					DBQueries.createMatch(t1.getToken(), t2.getToken());
+					GestionePartita.InsertMatch(DBQueries.getActiveMatchesByToken(t1.getToken()).getMatchID()); //per recuperare il match della partita ho riutilizzato dei metodi creati in precedenza...
 					System.out.println("due elementi sono stati inseriti nella tabella e tolti dalla coda");
 					Stamp();
 				}
