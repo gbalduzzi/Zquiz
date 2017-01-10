@@ -24,7 +24,7 @@ public class Questions {
 		this.setTempo(new Date());
 	}
 	
-	/**
+	
 	public Questions(DomandaSingola d1, DomandaSingola d2, DomandaSingola d3, DomandaSingola d4, String t1, String t2){
 		this.domanda1 = d1;
 		this.domanda2 = d2;
@@ -33,7 +33,7 @@ public class Questions {
 		this.setTempo(new Date());
 		this.Users[0]= DBQueries.getUserFromToken(t1);
 		this.Users[1]= DBQueries.getUserFromToken(t2);
-	} **/
+	}
 	
 	public DomandaSingola getDomandaSingola1(){
 		return domanda1;

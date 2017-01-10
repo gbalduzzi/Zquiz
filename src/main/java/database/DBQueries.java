@@ -262,8 +262,10 @@ public class DBQueries {
 		}
 	}
 
-	public static Questions selectDomande(){
+	public static Questions selectDomande(String t1, String t2){
 
+		String u1 = DBQueries.getUserFromToken(t1);
+		String u2 = DBQueries.getUserFromToken(t2);
 		Connection connect = DBConnection.getConnection();
 		Questions q = null;
 		try {
@@ -277,7 +279,7 @@ public class DBQueries {
 				System.out.println(d2.getDomanda());
 				System.out.println(d3.getDomanda());
 				System.out.println(d4.getDomanda());
-				q = new Questions(d1, d2, d3, d4);
+				q = new Questions(d1, d2, d3, d4,u1,u2);
 				System.out.println(q.getDomandaSingola1().getDomanda());
 		} catch (SQLException e) {
 			e.printStackTrace();
