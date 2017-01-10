@@ -30,8 +30,8 @@ public class GestionePartita implements Runnable{
 					PartiteAttive.remove(key);
 					DBQueries.EndMatch(key);
 				}
-			lock.unlock();
 			}
+			lock.unlock();
 		}
 	}
 	
