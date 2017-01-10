@@ -345,13 +345,6 @@ public class DBQueries {
 		System.out.println("crea partita tra danilo e tia");
 		createMatch("d.bertoc8d5uf5ju8dm8p83vvmauub0kgj", "tiapera7cjsm2v1per79mgna4inmi4gm8");
 	*/
-	/**
-		Questions q1 = selectDomande();
-		System.out.println(q1.getDomandaSingola1().getRisposta2());
-		System.out.println(q1.getDomandaSingola1().getRisposta3());
-		**/
-		
-		EndMatch(87);
 	}
 
 }
