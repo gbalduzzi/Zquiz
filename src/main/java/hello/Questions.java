@@ -15,14 +15,14 @@ public class Questions {
 	private String[] Users;
 	
 	
-	
+	/**
 	public Questions(DomandaSingola d1, DomandaSingola d2, DomandaSingola d3, DomandaSingola d4){
 		this.domanda1 = d1;
 		this.domanda2 = d2;
 		this.domanda3 = d3;
 		this.domanda4 = d4;
 		this.setTempo(new Date());
-	}
+	} **/
 	
 	
 	public Questions(DomandaSingola d1, DomandaSingola d2, DomandaSingola d3, DomandaSingola d4, String t1, String t2){
@@ -77,4 +77,11 @@ public class Questions {
 		}
 	}
 
+	public String getUser1(){
+		return Users[0];
+	}
+	
+	public String getUser2(){
+		return Users[1];
+	}
 }

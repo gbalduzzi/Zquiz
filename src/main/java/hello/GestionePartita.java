@@ -38,7 +38,7 @@ public class GestionePartita implements Runnable{
 	public static void InsertMatch(int Match, String t1, String t2){
 		lock.lock();
 		try{
-			PartiteAttive.put(Match, DBQueries.selectDomande());
+			PartiteAttive.put(Match, DBQueries.selectDomande(t1, t2));
 		}
 		catch (Exception e) {
 			System.out.println(e.getMessage());
