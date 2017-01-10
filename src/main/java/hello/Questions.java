@@ -12,7 +12,7 @@ public class Questions {
 	private DomandaSingola domanda4;
 	private Date tempo; //per regolare la scadenza della partita
 	private int[] score = {0, 0};
-	private String[] Users;
+	private String[] Users = {"", ""};
 	
 	
 	/**
@@ -25,14 +25,14 @@ public class Questions {
 	} **/
 	
 	
-	public Questions(DomandaSingola d1, DomandaSingola d2, DomandaSingola d3, DomandaSingola d4, String t1, String t2){
+	public Questions(DomandaSingola d1, DomandaSingola d2, DomandaSingola d3, DomandaSingola d4, String u1, String u2){
 		this.domanda1 = d1;
 		this.domanda2 = d2;
 		this.domanda3 = d3;
 		this.domanda4 = d4;
 		this.setTempo(new Date());
-		this.Users[0]= DBQueries.getUserFromToken(t1);
-		this.Users[1]= DBQueries.getUserFromToken(t2);
+		this.Users[0]= u1;
+		this.Users[1]= u2;
 	}
 	
 	public DomandaSingola getDomandaSingola1(){

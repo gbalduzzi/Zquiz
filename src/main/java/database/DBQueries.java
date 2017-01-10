@@ -347,7 +347,9 @@ public class DBQueries {
 		createMatch("d.bertoc8d5uf5ju8dm8p83vvmauub0kgj", "tiapera7cjsm2v1per79mgna4inmi4gm8");
 	*/
 	
-		Questions q1 = selectDomande();
+		Questions q1 = selectDomande("dave941t1j63ivum2takn1g2rv0dmmgg","g.balduzjoebtdp6k96q4ogrdnks74f522");
+		System.out.println(q1.getUser1());
+		System.out.println(q1.getUser2());
 		System.out.println(q1.getDomandaSingola1().getRisposta2());
 		System.out.println(q1.getDomandaSingola1().getRisposta3());
 		
