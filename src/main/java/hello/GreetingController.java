@@ -149,8 +149,9 @@ public class GreetingController {
 			return (T)e;
 		}
 
-		if(GestionePartita.PartiteAttive.containsKey(MatchID)){
-			Questions x =GestionePartita.PartiteAttive.get(MatchID);
+		int M = Integer.parseInt(MatchID);
+		if(GestionePartita.PartiteAttive.containsKey(M)){
+			Questions x =GestionePartita.PartiteAttive.get(M);
 
 			DomandaSingola t = x.getDomanda(n);
 			if (t == null) {

@@ -66,7 +66,7 @@ public class Questions {
 	}
 	
 	public DomandaSingola getDomanda(int n){
-		if(GestioneCoda.getDateDiff(this.getTempo())<(n-1)*30000){
+		if(GestioneCoda.getDateDiff(this.getTempo())>(n-1)*50000){
 			return Domande[n-1];
 		}else{
 			return null;

@@ -26,9 +26,10 @@ public class GestionePartita implements Runnable{
 		while(true){
 			lock.lock();
 			for(int key : PartiteAttive.keySet()){
-				if(GestioneCoda.getDateDiff(PartiteAttive.get(key).getTempo())>100000){ //tempo oltre al quale decidiamo che la partita si chiude
+				if(GestioneCoda.getDateDiff(PartiteAttive.get(key).getTempo())>400000){ //tempo oltre al quale decidiamo che la partita si chiude
 					PartiteAttive.remove(key);
 					DBQueries.EndMatch(key);
+					System.out.println("Partita rimossa del dictionary");
 				}
 			}
 			lock.unlock();
@@ -37,6 +38,7 @@ public class GestionePartita implements Runnable{
 	
 	//metodo ststico per inserire una partita nella lista (ogni oggetto della lista conterrà già tutte le domande previste, così interrogo il database un unica volta).
 	public static void InsertMatch(int Match, String t1, String t2){
+		System.out.println("partita inserita nel dictionary");
 		lock.lock();
 		try{
 			PartiteAttive.put(Match, DBQueries.selectDomande(t1, t2));
