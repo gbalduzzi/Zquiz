@@ -30,6 +30,7 @@ public class GestionePartita implements Runnable{
 					PartiteAttive.remove(key);
 					DBQueries.EndMatch(key);
 				}
+			lock.unlock();
 			}
 		}
 	}
@@ -47,11 +48,4 @@ public class GestionePartita implements Runnable{
 			lock.unlock();
 		}
 	}
-	
-	public static DomandaSingola GetDomanda(int number){
-		
-		return null;
-	}
-	
-	
 }

@@ -280,7 +280,6 @@ public class DBQueries {
 				System.out.println(d3.getDomanda());
 				System.out.println(d4.getDomanda());
 				q = new Questions(d1, d2, d3, d4,u1,u2);
-				System.out.println(q.getDomandaSingola1().getDomanda());
 		} catch (SQLException e) {
 			e.printStackTrace();
 			DBConnection.rollbackConnection(connect); //Evito di lasciare operazioni "parziali" sul DB		
@@ -346,10 +345,11 @@ public class DBQueries {
 		System.out.println("crea partita tra danilo e tia");
 		createMatch("d.bertoc8d5uf5ju8dm8p83vvmauub0kgj", "tiapera7cjsm2v1per79mgna4inmi4gm8");
 	*/
-	
+	/**
 		Questions q1 = selectDomande();
 		System.out.println(q1.getDomandaSingola1().getRisposta2());
 		System.out.println(q1.getDomandaSingola1().getRisposta3());
+		**/
 		
 		EndMatch(87);
 	}
