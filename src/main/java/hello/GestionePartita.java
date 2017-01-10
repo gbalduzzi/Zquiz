@@ -35,7 +35,7 @@ public class GestionePartita implements Runnable{
 	}
 	
 	//metodo ststico per inserire una partita nella lista (ogni oggetto della lista conterrà già tutte le domande previste, così interrogo il database un unica volta).
-	public static void InsertMatch(int Match){
+	public static void InsertMatch(int Match, String t1, String t2){
 		lock.lock();
 		try{
 			PartiteAttive.put(Match, DBQueries.selectDomande());

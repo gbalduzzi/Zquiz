@@ -47,7 +47,7 @@ public class GestioneCoda implements Runnable {
 					t2 = UtentiInAttesa.remove();
 					Contatore--;
 					DBQueries.createMatch(t1.getToken(), t2.getToken());
-					GestionePartita.InsertMatch(DBQueries.getActiveMatchesByToken(t1.getToken()).getMatchID()); //per recuperare il match della partita ho riutilizzato dei metodi creati in precedenza...
+					GestionePartita.InsertMatch(DBQueries.getActiveMatchesByToken(t1.getToken()).getMatchID(), t1.getToken(), t2.getToken()); //per recuperare il match della partita ho riutilizzato dei metodi creati in precedenza...
 					System.out.println("due elementi sono stati inseriti nella tabella e tolti dalla coda");
 					Stamp();
 				}
