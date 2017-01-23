@@ -264,6 +264,34 @@ public class DBQueries {
 			DBConnection.closeConnection(connect);
 		}
 	}
+	
+    public static Questions selectDomande(String t1, String t2){
+
+        String u1 = DBQueries.getUserFromToken(t1);
+        String u2 = DBQueries.getUserFromToken(t2);
+        Connection connect = DBConnection.getConnection();
+        Questions q = null;
+        try {
+            PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT * FROM domanda ORDER BY RAND() LIMIT 4");
+            ResultSet data = statement.executeQuery();
+                DomandaSingola d1 = DomandaSingola.createDomandaSingolaFromResultSet(data);
+                DomandaSingola d2 = DomandaSingola.createDomandaSingolaFromResultSet(data);
+                DomandaSingola d3 = DomandaSingola.createDomandaSingolaFromResultSet(data);
+                DomandaSingola d4 = DomandaSingola.createDomandaSingolaFromResultSet(data);
+                System.out.println(d1.getDomanda());
+                System.out.println(d2.getDomanda());
+                System.out.println(d3.getDomanda());
+                System.out.println(d4.getDomanda());
+                q = new Questions(d1, d2, d3, d4,u1,u2);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            DBConnection.rollbackConnection(connect); //Evito di lasciare operazioni "parziali" sul DB        
+        } finally {
+            DBConnection.closeConnection(connect);
+        }
+        return q;
+    }
+
 
 
 	//CreatePartita()
@@ -364,8 +392,8 @@ public class DBQueries {
 
 		Connection connect = DBConnection.getConnection();
 		try {
-			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT Punteggio FROM risultati Where Username=?");
-			statement.setString(1, User);
+			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT * FROM risultati Where Match_ID = ?");
+			statement.setInt(1, MatchId);
 			ResultSet data = statement.executeQuery();
 			return MatchResult.createMatchResultFromResultSet(data, User);
 		} catch (SQLException e) {

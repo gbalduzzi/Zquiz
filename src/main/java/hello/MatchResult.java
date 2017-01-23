@@ -33,6 +33,7 @@ public class MatchResult {
 		int oppScore = 0;
 		try {
 			while (data.next()) {
+				System.out.println(data.getString(1));
 				if (data.getString("Username").equals(User))
 					score = data.getInt("Punteggio");
 				else

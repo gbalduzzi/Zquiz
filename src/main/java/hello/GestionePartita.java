@@ -28,14 +28,14 @@ public class GestionePartita implements Runnable{
 			lock.lock();
 			ReadConfigFile r = ReadConfigFile.getInstance();
 			for(int key : PartiteAttive.keySet()){
-				if(GestioneCoda.getDateDiff(PartiteAttive.get(key).getTempo())> r.getAnswerTime()*4 ){ //tempo oltre al quale decidiamo che la partita si chiude
+				if(GestioneCoda.getDateDiff(PartiteAttive.get(key).getTempo()) > r.getAnswerTime()*4 ){ //tempo oltre al quale decidiamo che la partita si chiude
 					// Chiudo la partita perchè è passato troppo tempo
 					Questions m = PartiteAttive.get(key);
 					// Salvo i risultati della partita
-					DBQueries.insertResult(key, m.getUser1(), m.getScore1(1));
-					DBQueries.insertResult(key, m.getUser2(), m.getScore1(2));
+					DBQueries.insertResult(m.getUser1(), key, m.getScore1(0));
+					DBQueries.insertResult(m.getUser2(), key, m.getScore1(1));
 					
-					String winner = m.getScore1(1) > m.getScore1(2) ? m.getUser1() : m.getUser2();
+					String winner = m.getScore1(0) > m.getScore1(1) ? m.getUser1() : m.getUser2();
 					
 					PartiteAttive.remove(key);
 					DBQueries.EndMatch(key, winner);
