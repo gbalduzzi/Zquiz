@@ -2,6 +2,7 @@ package hello;
 
 import java.util.Date;
 
+import config.ReadConfigFile;
 import database.DBQueries;
 
 public class Questions {
@@ -66,7 +67,8 @@ public class Questions {
 	}
 	
 	public DomandaSingola getDomanda(int n){
-		if(GestioneCoda.getDateDiff(this.getTempo())>(n-1)*50000){
+		ReadConfigFile r = ReadConfigFile.getInstance();
+		if(GestioneCoda.getDateDiff(this.getTempo())>(n-1)*r.getAnswerTime()){
 			return Domande[n-1];
 		}else{
 			return null;

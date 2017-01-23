@@ -52,4 +52,8 @@ public class ReadConfigFile {
 	public String getDBPwd() {
 		return prop.getProperty("dbpassword");
 	}
+	
+	public int getAnswerTime() {
+		return Integer.parseInt(prop.getProperty("answertime"));
+	}
 }

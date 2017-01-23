@@ -237,6 +237,31 @@ public class GreetingController {
 			
 		}
 		
+		@RequestMapping(method= RequestMethod.GET, value = "/endmatch")
+		public <T> T EndMatch(@RequestParam(value="MatchID",defaultValue="") String MatchID, @RequestParam(value="Token",defaultValue="") String Token){
+			
+			//controllo che siano stati inseriti tutti i campi
+			if(MatchID.equals("") || Token.equals("")){
+				Error e2= new Error(2, "Non hai inserito tutti i campi");
+				return (T) e2;
+			}
+			
+			int match = Integer.parseInt(MatchID);
+			
+			//Controllo la validità del token
+			String User =   DBQueries.getUserFromToken(Token);
+			if(User == null){
+				Error e = new Error(1, "Token inviato non riconosciuto. Potrebbe essere scaduto");
+				return (T)e;
+			}
+			
+			DBQueries.getResultFromMatchID(match, User);
+			
+			return null;
+			
+			
+		}
+		
 		
 		
 	}
