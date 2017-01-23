@@ -6,9 +6,11 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Random;
 
+import com.fasterxml.jackson.databind.deser.DataFormatReaders.Match;
 import com.mysql.jdbc.PreparedStatement;
 
 import hello.DomandaSingola;
+import hello.MatchResult;
 import hello.Partita;
 import hello.Questions;
 import hello.Token;
@@ -25,6 +27,7 @@ public class DBQueries {
 			e.printStackTrace();
 		}
 	}
+		
 
 	/*
 	 * 
@@ -262,44 +265,18 @@ public class DBQueries {
 		}
 	}
 
-	public static Questions selectDomande(String t1, String t2){
-
-		String u1 = DBQueries.getUserFromToken(t1);
-		String u2 = DBQueries.getUserFromToken(t2);
-		Connection connect = DBConnection.getConnection();
-		Questions q = null;
-		try {
-			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT * FROM domanda ORDER BY RAND() LIMIT 4");
-			ResultSet data = statement.executeQuery();
-				DomandaSingola d1 = DomandaSingola.createDomandaSingolaFromResultSet(data);
-				DomandaSingola d2 = DomandaSingola.createDomandaSingolaFromResultSet(data);
-				DomandaSingola d3 = DomandaSingola.createDomandaSingolaFromResultSet(data);
-				DomandaSingola d4 = DomandaSingola.createDomandaSingolaFromResultSet(data);
-				System.out.println(d1.getDomanda());
-				System.out.println(d2.getDomanda());
-				System.out.println(d3.getDomanda());
-				System.out.println(d4.getDomanda());
-				q = new Questions(d1, d2, d3, d4,u1,u2);
-		} catch (SQLException e) {
-			e.printStackTrace();
-			DBConnection.rollbackConnection(connect); //Evito di lasciare operazioni "parziali" sul DB		
-		} finally {
-			DBConnection.closeConnection(connect);
-		}
-		return q;
-	}
-
 
 	//CreatePartita()
 	//metodo che riceve in ingresso i due token.. genera un matchid casuale e inserisce la partita nella tabella
 
-	public static void EndMatch(int match_id){
+	public static void EndMatch(int match_id, String winner){
 
 		Connection connect = DBConnection.getConnection();
 		
 		try {
-			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("UPDATE partita SET Status = 0 WHERE Match_ID = ?  ");
-			statement.setInt(1, match_id);
+			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("UPDATE partita SET Status = 0, Vincitore_ID = ?  WHERE Match_ID = ?  ");
+			statement.setString(1, winner);
+			statement.setInt(2, match_id);
 			statement.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -377,6 +354,30 @@ public class DBQueries {
 		}
 	}
 
+	// metodo get result from match( match , user)
+	/*
+	 * selezionare risultato e utente relativo al match
+	 * e li passo al metodo creatematchresultfromresult set
+	 */
+	
+	public static MatchResult getResultFromMatch(int MatchId, String User){
+
+		Connection connect = DBConnection.getConnection();
+		try {
+			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT Punteggio FROM risultati Where Username=?");
+			statement.setString(1, User);
+			ResultSet data = statement.executeQuery();
+			return MatchResult.createMatchResultFromResultSet(data, User);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			DBConnection.rollbackConnection(connect); //Evito di lasciare operazioni "parziali" sul DB		
+		} finally {
+			DBConnection.closeConnection(connect);
+		}
+		return null;
+	}
+
+	
 
 	
 	
@@ -416,7 +417,9 @@ public class DBQueries {
 		createMatch("d.bertoc8d5uf5ju8dm8p83vvmauub0kgj", "tiapera7cjsm2v1per79mgna4inmi4gm8");
 	*/
 		
-		insertResult("martinparre", 83, 200);
+		//insertResult("martinparre", 83, 200);
+		
+		EndMatch(83, "martinparre");
 		
 	}
 

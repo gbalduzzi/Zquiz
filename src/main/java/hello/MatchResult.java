@@ -28,7 +28,7 @@ public class MatchResult {
 		this.opponent_score = opponent_score;
 	}
 	
-	public MatchResult createMatchResultFromResultSet(ResultSet data, String User) {
+	public static MatchResult createMatchResultFromResultSet(ResultSet data, String User) {
 		int score = 0;
 		int oppScore = 0;
 		try {
