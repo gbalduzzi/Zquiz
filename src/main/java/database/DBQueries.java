@@ -308,6 +308,28 @@ public class DBQueries {
 			DBConnection.closeConnection(connect);
 		}
 	}
+
+	public static void insertReply(int MatchId, String User, int Domanda, int Risposta){
+
+		Connection connect = DBConnection.getConnection();
+		
+		try {
+			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("INSERT INTO risposte(Match_ID,Username,Domanda_ID,Risposta) VALUES(?,?,?,?)");
+			statement.setInt(1, MatchId);
+			statement.setString(2, User);
+			statement.setInt(3, Domanda);
+			statement.setInt(4, Risposta);
+			statement.executeUpdate();
+			statement.close();
+		} catch(SQLException e) {
+			e.printStackTrace();
+			DBConnection.rollbackConnection(connect); //Evito di lasciare operazioni "parziali" sul DB		
+		} finally {
+			DBConnection.closeConnection(connect);
+		}
+	}
+
+	
 	
 	public static void main(String[] args) {
 
@@ -345,6 +367,9 @@ public class DBQueries {
 		System.out.println("crea partita tra danilo e tia");
 		createMatch("d.bertoc8d5uf5ju8dm8p83vvmauub0kgj", "tiapera7cjsm2v1per79mgna4inmi4gm8");
 	*/
+		
+		insertReply(3, "zerresuper", 3, 4);
+		
 	}
 
 }
