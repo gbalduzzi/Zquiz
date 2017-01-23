@@ -21,7 +21,6 @@ import utils.SessionGenerator;
 @RestController
 public class GreetingController {
 
-
 	// metodo post per registrazione utente
 
 	@RequestMapping(method= RequestMethod.POST, value = "/register")
@@ -173,6 +172,65 @@ public class GreetingController {
 		 * 		error la partita è scaduta cazzone
 		 * }
 		 */
+	}
+	
+	@RequestMapping(method= RequestMethod.POST, value = "/reply")
+	public <T extends Object> T QuestionReply(@RequestParam(value="Token",defaultValue="" ) String Token, @RequestParam(value="Number", defaultValue="") String Number, 
+			@RequestParam(value="MatchID",defaultValue="" ) String MatchId, @RequestParam(value="ReplyNum",defaultValue="" ) String ReplyNum ){
+		
+		//controllo che siano stati inseriti tutti i campi
+		if(MatchId.equals("") || Token.equals("") || Number.equals("") || ReplyNum.equals("")){
+			Error e2= new Error(2, "Non hai inserito tutti i campi");
+			return (T) e2;
+		}
+		
+		int match = Integer.parseInt(MatchId);
+		int n = Integer.parseInt(Number);
+		int reply = Integer.parseInt(ReplyNum);
+		
+		//Controllo la validità del token
+		String User =   DBQueries.getUserFromToken(Token);
+		if(User == null){
+			Error e = new Error(1, "Token inviato non riconosciuto. Potrebbe essere scaduto");
+			return (T)e;
+		}
+		
+		//Controllo che il numero di domanda sia corretto
+		if(n<1 || n>4){
+			Error e = new Error(3, "La domanda "+Number+" non esiste");
+			return (T)e;
+		}
+		
+		//Controllo che la partita sia attiva
+		if(!GestionePartita.PartiteAttive.containsKey(match)){
+			Error e = new Error(4, "La partita selezionata non esiste o non è attiva");
+			return (T)e;
+			
+		} else {
+			DBQueries.insertReply(match, User, n, reply);
+			System.out.println("Risposta inserita per utente "+User);
+			
+			Questions Match =GestionePartita.PartiteAttive.get(match);
+			
+			DomandaSingola q = Match.getDomandaUnchecked(n);
+			
+			if (q.getRispostaGiusta() == reply) {
+				int score = Match.getScore(Token);
+				Match.setScore(score + 50, Token);
+				// TODO: score in base al tempo
+				
+
+				Error e = new Error(0, "correct");
+				return (T)e;
+			}
+			
+			Error e = new Error(0, "wrong");
+			return (T)e;
+			
+		}
+		
+		
+		
 	}
 
 

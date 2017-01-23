@@ -73,6 +73,14 @@ public class Questions {
 		}
 	}
 	
+	public DomandaSingola getDomandaUnchecked(int n){
+		if(n > 0 && n < 5){
+			return Domande[n-1];
+		}else{
+			return null;
+		}
+	}
+	
 	public int getScore1(int i){
 		return score[i];
 	}
