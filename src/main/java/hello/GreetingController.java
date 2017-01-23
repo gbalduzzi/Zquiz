@@ -207,12 +207,20 @@ public class GreetingController {
 			return (T)e;
 			
 		} else {
-			DBQueries.insertReply(match, User, n, reply);
-			System.out.println("Risposta inserita per utente "+User);
+			
+			if (!DBQueries.checkReplies(match, User, n)) {
+				Error e = new Error(5, "Hai già risposto a questa domanda");
+				return (T)e;
+			}
 			
 			Questions Match =GestionePartita.PartiteAttive.get(match);
 			
 			DomandaSingola q = Match.getDomandaUnchecked(n);
+			
+			DBQueries.insertReply(match, User, q.getDomanda_ID(), reply);
+			System.out.println("Risposta inserita per utente "+User);
+			
+			
 			
 			if (q.getRispostaGiusta() == reply) {
 				int score = Match.getScore(Token);

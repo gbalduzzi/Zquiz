@@ -328,11 +328,37 @@ public class DBQueries {
 			DBConnection.closeConnection(connect);
 		}
 	}
+	
+	public static boolean checkReplies(int MatchId, String User, int Domanda){
 
+		Connection connect = DBConnection.getConnection();
+		
+		try {
+			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT count(*) FROM `risposte` WHERE `Username` = ? AND `Match_ID` = ?");
+			statement.setInt(2, MatchId);
+			statement.setString(1, User);
+			ResultSet data = statement.executeQuery();
+			int total = 0;
+			if(data.next()) {
+				total = data.getInt(1);
+			}
+			
+			statement.close();
+			if (total < Domanda) return true;
+			return false;
+					
+		} catch(SQLException e) {
+			e.printStackTrace();
+			DBConnection.rollbackConnection(connect); //Evito di lasciare operazioni "parziali" sul DB		
+		} finally {
+			DBConnection.closeConnection(connect);
+		}
+		
+		return false;
+	}
 	
 	
 	public static void main(String[] args) {
-
 		//insertUser("BLABLA", "PROVA", "PINCO", "PALLO");
 		
 		//ConnectionToMySql_InsertElement("GBalduz", "clusone", "Giorgio", "Balduzzi");
@@ -367,8 +393,6 @@ public class DBQueries {
 		System.out.println("crea partita tra danilo e tia");
 		createMatch("d.bertoc8d5uf5ju8dm8p83vvmauub0kgj", "tiapera7cjsm2v1per79mgna4inmi4gm8");
 	*/
-		
-		insertReply(3, "zerresuper", 3, 4);
 		
 	}
 
