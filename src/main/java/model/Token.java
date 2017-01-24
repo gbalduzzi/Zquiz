@@ -1,4 +1,4 @@
-package hello;
+package model;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -6,18 +6,18 @@ import java.sql.SQLException;
 public class Token {
 
 	
-	private String Token;
+	private String token;
 	
 	public Token(String t){
 		this.setToken(t);
 	}
 
 	public String getToken() {
-		return Token;
+		return token;
 	}
 
 	public void setToken(String token) {
-		Token = token;
+		this.token = token;
 	}
 	
 	public static Token createTokenFromResultSet(ResultSet data) {

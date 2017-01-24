@@ -1,4 +1,4 @@
-package hello;
+package model;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -6,32 +6,32 @@ import java.sql.SQLException;
 public class User {
 
     
-    private final String Username;
-    private final String Nome;
-    private final String Cognome;
-    private final int Vittorie;
+    private final String username;
+    private final String name;
+    private final String surname;
+    private final int wins;
     
     public User(String u, String n, String c, int v) {
-        this.Username = u ;
-        this.Nome = n ;
-        this.Cognome = c ;
-        this.Vittorie = v;
+        this.username = u ;
+        this.name = n ;
+        this.surname = c ;
+        this.wins = v;
     }
 
 	public String getUsername() {
-		return Username;
+		return username;
 	}
 
 	public String getNome() {
-		return Nome;
+		return name;
 	}
 
 	public String getCognome() {
-		return Cognome;
+		return surname;
 	}
 
 	public int getVittorie() {
-		return Vittorie;
+		return wins;
 	}
 	
 	public static User createUserFromResultSet(ResultSet data) {

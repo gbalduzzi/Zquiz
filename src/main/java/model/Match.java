@@ -1,39 +1,39 @@
-package hello;
+package model;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 //calsse da inviare col json quando riesco, dopo una richiesta dell'utente a inviare un apartita.
-public class Partita {
+public class Match {
 
-	private int MatchID;
-	private String Avversario;
+	private int match_id;
+	private String opponent;
 	
-	public Partita(int MatchID, String Avversario){
+	public Match(int MatchID, String Avversario){
 		this.setAvversario(Avversario);
 		this.setMatchID(MatchID);
 	}
 
 	public int getMatchID() {
-		return MatchID;
+		return match_id;
 	}
 
 	public void setMatchID(int matchID) {
-		MatchID = matchID;
+		match_id = matchID;
 	}
 
 	public String getAvversario() {
-		return Avversario;
+		return opponent;
 	}
 
 	public void setAvversario(String avversario) {
-		Avversario = avversario;
+		opponent = avversario;
 	}
 	
-	public static Partita createPartitaFromResultSet(ResultSet data, String User) {
+	public static Match createPartitaFromResultSet(ResultSet data, String User) {
 		try {
 			if (data.next()) {
-				Partita p = new Partita(data.getInt(1), User.equals(data.getString(2))? data.getString(3) : data.getString(2) );
+				Match p = new Match(data.getInt(1), User.equals(data.getString(2))? data.getString(3) : data.getString(2) );
 				return p;
 			}
 		} catch (SQLException e) {

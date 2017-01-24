@@ -1,4 +1,4 @@
-package hello;
+package controllers;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -7,11 +7,13 @@ import java.util.Queue;
 import java.util.concurrent.locks.ReentrantLock;
 
 import database.DBQueries;
+import model.Match;
+import utils.MatchRequest;
 
 
 
 
-public class GestioneCoda implements Runnable {
+public class QueueController implements Runnable {
 
 	static Queue<MatchRequest> UtentiInAttesa = new LinkedList<MatchRequest>();
 	static int Contatore=0; //conta gli elementi al momento presenti nella coda
@@ -22,7 +24,7 @@ public class GestioneCoda implements Runnable {
 	MatchRequest t1;
 	MatchRequest t2;
 
-	public GestioneCoda(){}
+	public QueueController(){}
 
 	public void run() { //aggiungere qualcosa per far dormire un po' il thread fra un ciclo e l'altro.
 		//codice per gestire la coda
@@ -47,7 +49,7 @@ public class GestioneCoda implements Runnable {
 					t2 = UtentiInAttesa.remove();
 					Contatore--;
 					DBQueries.createMatch(t1.getToken(), t2.getToken());
-					GestionePartita.InsertMatch(DBQueries.getActiveMatchesByToken(t1.getToken()).getMatchID(), t1.getToken(), t2.getToken()); //per recuperare il match della partita ho riutilizzato dei metodi creati in precedenza...
+					ActiveMatchesController.InsertMatch(DBQueries.getActiveMatchesByToken(t1.getToken()).getMatchID(), t1.getToken(), t2.getToken()); //per recuperare il match della partita ho riutilizzato dei metodi creati in precedenza...
 					System.out.println("due elementi sono stati inseriti nella tabella e tolti dalla coda");
 					Stamp();
 				}
@@ -74,12 +76,12 @@ public class GestioneCoda implements Runnable {
 	}
 
 	//metodo per fare la richiesta di gioco.
-	public static Partita RequestGame(String Token){
+	public static Match RequestGame(String Token){
 
 		MatchRequest x = new MatchRequest(Token); //genero la tupla da mettere nella coda.
 		lock.lock();
 		try{
-			Partita newMatch = DBQueries.getActiveMatchesByToken(Token); //do per scontato che la partita a questo punto sia appena stata inserita.
+			Match newMatch = DBQueries.getActiveMatchesByToken(Token); //do per scontato che la partita a questo punto sia appena stata inserita.
 
 			if(newMatch != null){
 				

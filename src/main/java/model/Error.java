@@ -1,9 +1,9 @@
-package hello;
+package model;
 
 public class Error {
 
-	private int Err;
-	private String Message;
+	private int error;
+	private String message;
 	
 	public Error(int e, String m){
 		this.setErr(e);
@@ -11,19 +11,19 @@ public class Error {
 	}
 
 	public int getErr() {
-		return Err;
+		return error;
 	}
 
 	public void setErr(int err) {
-		Err = err;
+		error = err;
 	}
 
 	public String getMessage() {
-		return Message;
+		return message;
 	}
 
 	public void setMessage(String message) {
-		Message = message;
+		this.message = message;
 	}
 	
 	

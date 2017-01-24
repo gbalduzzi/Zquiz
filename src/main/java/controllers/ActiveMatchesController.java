@@ -1,4 +1,4 @@
-package hello;
+package controllers;
 
 import java.io.Console;
 import java.util.Dictionary;
@@ -11,13 +11,13 @@ import javax.swing.text.html.HTMLDocument.Iterator;
 import config.ReadConfigFile;
 import database.DBQueries;
 
-public class GestionePartita implements Runnable{
+public class ActiveMatchesController implements Runnable{
 	
 	//Lista delle partite attive (megluo usare dictionary) (key-> matchID, Oggetto contenente tutti i dati)
 	//Ogni oggetto della lista conterrà già tutte le domande.
 	//Dictionary<int MatchID, Questions x> PartiteAttive;
 	
-	public static Map<Integer, Questions> PartiteAttive = new HashMap<Integer, Questions>();
+	public static Map<Integer, MatchController> PartiteAttive = new HashMap<Integer, MatchController>();
 	
 	static ReentrantLock lock = new ReentrantLock();
 
@@ -28,9 +28,9 @@ public class GestionePartita implements Runnable{
 			lock.lock();
 			ReadConfigFile r = ReadConfigFile.getInstance();
 			for(int key : PartiteAttive.keySet()){
-				if(GestioneCoda.getDateDiff(PartiteAttive.get(key).getTempo()) > r.getAnswerTime()*4 ){ //tempo oltre al quale decidiamo che la partita si chiude
+				if(QueueController.getDateDiff(PartiteAttive.get(key).getTempo()) > r.getAnswerTime()*4 ){ //tempo oltre al quale decidiamo che la partita si chiude
 					// Chiudo la partita perchè è passato troppo tempo
-					Questions m = PartiteAttive.get(key);
+					MatchController m = PartiteAttive.get(key);
 					// Salvo i risultati della partita
 					DBQueries.insertResult(m.getUser1(), key, m.getScore1(0));
 					DBQueries.insertResult(m.getUser2(), key, m.getScore1(1));

@@ -5,16 +5,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Random;
-
-import com.fasterxml.jackson.databind.deser.DataFormatReaders.Match;
 import com.mysql.jdbc.PreparedStatement;
 
-import hello.DomandaSingola;
-import hello.MatchResult;
-import hello.Partita;
-import hello.Questions;
-import hello.Token;
-import hello.User;
+import controllers.MatchController;
+import model.CompleteQuestion;
+import model.Match;
+import model.MatchResult;
+import model.Token;
+import model.User;
 import utils.MD5;
 
 public class DBQueries {
@@ -210,11 +208,11 @@ public class DBQueries {
 	//metodo che torna le partite associate(resultset) al token con stato uguale a 1 (il valore che ricevo è lo user)
 	//torna tutti gli elementi della riga.
 
-	public static Partita getActiveMatchesByToken(String token){
+	public static Match getActiveMatchesByToken(String token){
 		String utente = DBQueries.getUserFromToken(token);
 
 		Connection connect = DBConnection.getConnection();
-		Partita p = null;
+		Match p = null;
 		
 		try {
 			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT * FROM partita WHERE Status =? AND (Username1= ? OR Username2=?)");
@@ -222,7 +220,7 @@ public class DBQueries {
 			statement.setString(2, utente);
 			statement.setString(3, utente);
 			ResultSet data = statement.executeQuery();
-			p = Partita.createPartitaFromResultSet(data, utente);
+			p = Match.createPartitaFromResultSet(data, utente);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			DBConnection.rollbackConnection(connect); //Evito di lasciare operazioni "parziali" sul DB		
@@ -265,24 +263,24 @@ public class DBQueries {
 		}
 	}
 	
-    public static Questions selectDomande(String t1, String t2){
+    public static MatchController selectDomande(String t1, String t2){
 
         String u1 = DBQueries.getUserFromToken(t1);
         String u2 = DBQueries.getUserFromToken(t2);
         Connection connect = DBConnection.getConnection();
-        Questions q = null;
+        MatchController q = null;
         try {
             PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT * FROM domanda ORDER BY RAND() LIMIT 4");
             ResultSet data = statement.executeQuery();
-                DomandaSingola d1 = DomandaSingola.createDomandaSingolaFromResultSet(data);
-                DomandaSingola d2 = DomandaSingola.createDomandaSingolaFromResultSet(data);
-                DomandaSingola d3 = DomandaSingola.createDomandaSingolaFromResultSet(data);
-                DomandaSingola d4 = DomandaSingola.createDomandaSingolaFromResultSet(data);
-                System.out.println(d1.getDomanda());
-                System.out.println(d2.getDomanda());
-                System.out.println(d3.getDomanda());
-                System.out.println(d4.getDomanda());
-                q = new Questions(d1, d2, d3, d4,u1,u2);
+                CompleteQuestion d1 = CompleteQuestion.createDomandaSingolaFromResultSet(data);
+                CompleteQuestion d2 = CompleteQuestion.createDomandaSingolaFromResultSet(data);
+                CompleteQuestion d3 = CompleteQuestion.createDomandaSingolaFromResultSet(data);
+                CompleteQuestion d4 = CompleteQuestion.createDomandaSingolaFromResultSet(data);
+                System.out.println(d1.getQuestion());
+                System.out.println(d2.getQuestion());
+                System.out.println(d3.getQuestion());
+                System.out.println(d4.getQuestion());
+                q = new MatchController(d1, d2, d3, d4,u1,u2);
         } catch (SQLException e) {
             e.printStackTrace();
             DBConnection.rollbackConnection(connect); //Evito di lasciare operazioni "parziali" sul DB        

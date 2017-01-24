@@ -1,4 +1,4 @@
-package hello;
+package controllers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,6 +10,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import database.DBQueries;
+import model.CompleteQuestion;
+import model.Error;
+import model.Match;
+import model.Question;
+import model.Reply;
+import model.Token;
+import model.User;
 import utils.SessionGenerator;
 
 /**
@@ -24,8 +31,10 @@ public class GreetingController {
 	// metodo post per registrazione utente
 
 	@RequestMapping(method= RequestMethod.POST, value = "/register")
-	public <T extends Object> T Register(@RequestParam(value="User",defaultValue="" ) String User, @RequestParam(value="Password", defaultValue="") String Password, 
-			@RequestParam(value="Nome",defaultValue="" ) String Nome, @RequestParam(value="Cognome",defaultValue="" ) String Cognome ){
+	public <T extends Object> T Register(@RequestParam(value="username",defaultValue="" ) String User, 
+										 @RequestParam(value="password", defaultValue="") String Password, 
+										 @RequestParam(value="name",defaultValue="" ) String Nome, 
+										 @RequestParam(value="surname",defaultValue="" ) String Cognome ){
 
 		// caso 1 : mancano utente o password
 		if(User.equals("") || Password.equals("")){
@@ -47,8 +56,6 @@ public class GreetingController {
 			//genero il token
 			String token = User+SessionGenerator.nextSessionId();
 
-			//magari più tardi andrò a controllare se il token appena generato esiste già
-
 			//genero il timestamp x inserire il token.
 			java.sql.Timestamp sqlTimestamp= SessionGenerator.getFutureTimestamp(1);
 			DBQueries.insertToken(token, User, sqlTimestamp);
@@ -61,7 +68,8 @@ public class GreetingController {
 
 	// metodo post per login utente
 	@RequestMapping(method= RequestMethod.POST, value = "/authenticate")
-	public <T> T Authenticate(@RequestParam(value="User",defaultValue="" ) String User, @RequestParam(value="Password", defaultValue="") String Password){
+	public <T> T Authenticate(@RequestParam(value="username",defaultValue="" ) String User, 
+							  @RequestParam(value="password", defaultValue="") String Password){
 		String token = null;
 
 		// caso 1 : mancano utente o password
@@ -93,7 +101,7 @@ public class GreetingController {
 	// metodo get per restituire dati utente quando richiesti
 
 	@RequestMapping(method= RequestMethod.GET, value = "/user")
-	public User user(@RequestParam(value="User",defaultValue="") String User){
+	public User user(@RequestParam(value="username",defaultValue="") String User){
 
 		User ut = DBQueries.getUser(User);
 		if(ut != null){
@@ -104,7 +112,7 @@ public class GreetingController {
 
 	//prova a fare la richiesta per una partita
 	@RequestMapping(method= RequestMethod.GET, value = "/searchmatch")
-	public <T> T SearchMatch(@RequestParam(value="Token",defaultValue="") String Token) throws InterruptedException{
+	public <T> T SearchMatch(@RequestParam(value="token",defaultValue="") String Token) {
 
 		//controllo se il token esiste nella tabella dei token. (eventualmente salvo l'utente associato al token per controlli successivi).
 		// caso token non esistente funzionante
@@ -114,11 +122,11 @@ public class GreetingController {
 			return (T)e;
 		}
 
-		Partita result= GestioneCoda.RequestGame(Token); //inserisce nella coda la richiesta e in caso aggiorna
+		Match match= QueueController.RequestGame(Token); //inserisce nella coda la richiesta e in caso aggiorna
 
-		if(result != null){
+		if(match != null){
 
-			return (T) result;
+			return (T) match;
 
 		}else{
 			return (T)new Error(0, "stiamo cercando un partita per te");
@@ -128,12 +136,14 @@ public class GreetingController {
 
 	//Richiesta domanda
 	@RequestMapping(method= RequestMethod.GET, value = "/question")
-	public <T> T Question(@RequestParam(value="MatchID",defaultValue="") String MatchID, @RequestParam(value="Number",defaultValue="1") String Number, @RequestParam(value="Token",defaultValue="") String Token){
+	public <T> T Question(@RequestParam(value="match_id",defaultValue="") String MatchID, 
+						  @RequestParam(value="number",defaultValue="1") String Number, 
+						  @RequestParam(value="token",defaultValue="") String Token){
 
 		//controllo che siano stati inseriti tutti i campi
 		if(MatchID.equals("") || Token.equals("") || Number.equals("")){
-			Error e2= new Error(2, "Non hai inserito tutti i campi, manca o il MatchId o il Token");
-			return (T) e2;
+			Error e= new Error(2, "Non hai inserito tutti i campi, manca o il MatchId o il Token");
+			return (T) e;
 		}
 
 		String User =   DBQueries.getUserFromToken(Token);
@@ -149,34 +159,27 @@ public class GreetingController {
 		}
 
 		int M = Integer.parseInt(MatchID);
-		if(GestionePartita.PartiteAttive.containsKey(M)){
-			Questions x =GestionePartita.PartiteAttive.get(M);
+		if(ActiveMatchesController.PartiteAttive.containsKey(M)){
+			MatchController x =ActiveMatchesController.PartiteAttive.get(M);
 
-			DomandaSingola t = x.getDomanda(n);
+			CompleteQuestion t = x.getDomanda(n);
 			if (t == null) {
 				Error e = new Error(5, "Non puoi ricevere ora questa domanda... aspetta");
 				return (T)e;
 			}
-			DomandaModel result = new DomandaModel(x.getDomanda(n), x.getScore(Token), (x.getUser1().equals(User))?x.getScore1(1):x.getScore1(0) , n);
-			return (T)result;
+			
+			Question requestedQuestion = new Question(x.getDomanda(n), x.getScore(Token), (x.getUser1().equals(User))?x.getScore1(1):x.getScore1(0) , n);
+			return (T)requestedQuestion;
 		}else{
 			Error e = new Error(4, "La partita non è attiva");
 			return (T)e;
 		}
-
-		/**
-		 * se la partita è attiva(presente nella lista){
-		 * 		Seleziona e invia domanda dall'oggetto partita prelevato dalla lista
-		 * }
-		 * se partita non attiva(non presente nella lista){
-		 * 		error la partita è scaduta cazzone
-		 * }
-		 */
 	}
 	
 	@RequestMapping(method= RequestMethod.POST, value = "/reply")
-	public <T extends Object> T QuestionReply(@RequestParam(value="Token",defaultValue="" ) String Token, @RequestParam(value="Number", defaultValue="") String Number, 
-			@RequestParam(value="MatchID",defaultValue="" ) String MatchId, @RequestParam(value="ReplyNum",defaultValue="" ) String ReplyNum ){
+	public <T extends Object> T QuestionReply(@RequestParam(value="token",defaultValue="" ) String Token, 
+											  @RequestParam(value="number", defaultValue="") String Number, 
+											  @RequestParam(value="match_id",defaultValue="" ) String MatchId, @RequestParam(value="ReplyNum",defaultValue="" ) String ReplyNum ){
 		
 		//controllo che siano stati inseriti tutti i campi
 		if(MatchId.equals("") || Token.equals("") || Number.equals("") || ReplyNum.equals("")){
@@ -202,7 +205,7 @@ public class GreetingController {
 		}
 		
 		//Controllo che la partita sia attiva
-		if(!GestionePartita.PartiteAttive.containsKey(match)){
+		if(!ActiveMatchesController.PartiteAttive.containsKey(match)){
 			Error e = new Error(4, "La partita selezionata non esiste o non è attiva");
 			return (T)e;
 			
@@ -213,34 +216,33 @@ public class GreetingController {
 				return (T)e;
 			}
 			
-			Questions Match =GestionePartita.PartiteAttive.get(match);
+			MatchController Match =ActiveMatchesController.PartiteAttive.get(match);
 			
-			DomandaSingola q = Match.getDomandaUnchecked(n);
+			CompleteQuestion q = Match.getDomandaUnchecked(n);
 			
 			DBQueries.insertReply(match, User, q.getDomanda_ID(), reply);
 			System.out.println("Risposta inserita per utente "+User);
 			
+			Reply r = new Reply();
 			
-			
-			if (q.getRispostaGiusta() == reply) {
+			if (q.getRight_answer() == reply) {
 				int score = Match.getScore(Token);
 				Match.setScore(score + 50, Token);
 				// TODO: score in base al tempo
 				
-
-				Error e = new Error(0, "correct");
-				return (T)e;
+				r.setCorrect(true);
+			} else {
+				r.setCorrect(false);
 			}
-			
-			Error e = new Error(0, "wrong");
-			return (T)e;
+			return (T)r;
 			
 		}
 		
 	}
 	
 	@RequestMapping(method= RequestMethod.GET, value = "/endmatch")
-	public <T> T EndMatch(@RequestParam(value="MatchID",defaultValue="") String MatchID, @RequestParam(value="Token",defaultValue="") String Token){
+	public <T> T EndMatch(@RequestParam(value="match_id",defaultValue="") String MatchID, 
+						  @RequestParam(value="token",defaultValue="") String Token){
 		
 		//controllo che siano stati inseriti tutti i campi
 		if(MatchID.equals("") || Token.equals("")){
@@ -248,7 +250,7 @@ public class GreetingController {
 			return (T) e2;
 		}
 		
-		int match = Integer.parseInt(MatchID);
+		int match_id = Integer.parseInt(MatchID);
 		
 		//Controllo la validità del token
 		String User =   DBQueries.getUserFromToken(Token);
@@ -257,7 +259,7 @@ public class GreetingController {
 			return (T)e;
 		}
 		
-		return (T) DBQueries.getResultFromMatch(match, User);
+		return (T) DBQueries.getResultFromMatch(match_id, User);
 		
 	}
 

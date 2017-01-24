@@ -1,13 +1,14 @@
-package hello;
+package controllers;
 
 import java.util.Date;
 
 import config.ReadConfigFile;
 import database.DBQueries;
+import model.CompleteQuestion;
 
-public class Questions {
+public class MatchController {
 
-	private DomandaSingola[] Domande = new DomandaSingola[4];
+	private CompleteQuestion[] Domande = new CompleteQuestion[4];
 	private Date tempo; //per regolare la scadenza della partita
 	private int[] score = {0, 0};
 	private String[] Users = {"", ""};
@@ -22,7 +23,7 @@ public class Questions {
 		this.setTempo(new Date());
 	} **/
 	
-	public Questions(DomandaSingola d1, DomandaSingola d2, DomandaSingola d3, DomandaSingola d4, String u1, String u2){
+	public MatchController(CompleteQuestion d1, CompleteQuestion d2, CompleteQuestion d3, CompleteQuestion d4, String u1, String u2){
 		this.Domande[0] = d1;
 		this.Domande[1] = d2;
 		this.Domande[2] = d3;
@@ -66,16 +67,16 @@ public class Questions {
 		return Users[1];
 	}
 	
-	public DomandaSingola getDomanda(int n){
+	public CompleteQuestion getDomanda(int n){
 		ReadConfigFile r = ReadConfigFile.getInstance();
-		if(GestioneCoda.getDateDiff(this.getTempo())>(n-1)*r.getAnswerTime()){
+		if(QueueController.getDateDiff(this.getTempo())>(n-1)*r.getAnswerTime()){
 			return Domande[n-1];
 		}else{
 			return null;
 		}
 	}
 	
-	public DomandaSingola getDomandaUnchecked(int n){
+	public CompleteQuestion getDomandaUnchecked(int n){
 		if(n > 0 && n < 5){
 			return Domande[n-1];
 		}else{
