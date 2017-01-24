@@ -10,24 +10,24 @@ public class Match {
 	private String opponent;
 	
 	public Match(int MatchID, String Avversario){
-		this.setAvversario(Avversario);
-		this.setMatchID(MatchID);
+		this.setOpponent(Avversario);
+		this.setMatch_id(MatchID);
 	}
 
-	public int getMatchID() {
-		return match_id;
-	}
-
-	public void setMatchID(int matchID) {
-		match_id = matchID;
-	}
-
-	public String getAvversario() {
+	public String getOpponent() {
 		return opponent;
 	}
 
-	public void setAvversario(String avversario) {
-		opponent = avversario;
+	public void setOpponent(String opponent) {
+		this.opponent = opponent;
+	}
+
+	public int getMatch_id() {
+		return match_id;
+	}
+
+	public void setMatch_id(int match_id) {
+		this.match_id = match_id;
 	}
 	
 	public static Match createPartitaFromResultSet(ResultSet data, String User) {
@@ -42,4 +42,5 @@ public class Match {
 		
 		return null;
 	}
+
 }

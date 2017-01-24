@@ -22,7 +22,7 @@ public class Question {
 		this.setAnswer_four(x.getAnswer(4));
 		
 		this.setScore(s1);
-		this.setOpponentScore(so);
+		this.setOpponent_score(so);
 	}
 
 	public String getQuestion() {
@@ -47,14 +47,6 @@ public class Question {
 
 	public void setScore(int score) {
 		this.score = score;
-	}
-
-	public int getOpponentScore() {
-		return opponent_score;
-	}
-
-	public void setOpponentScore(int opponentScore) {
-		this.opponent_score = opponentScore;
 	}
 
 	public String getAnswer_one() {
@@ -87,5 +79,13 @@ public class Question {
 
 	public void setAnswer_four(String answer_four) {
 		this.answer_four = answer_four;
+	}
+
+	public int getOpponent_score() {
+		return opponent_score;
+	}
+
+	public void setOpponent_score(int opponent_score) {
+		this.opponent_score = opponent_score;
 	}
 }

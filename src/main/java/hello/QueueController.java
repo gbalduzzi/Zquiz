@@ -1,4 +1,4 @@
-package controllers;
+package hello;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -49,7 +49,7 @@ public class QueueController implements Runnable {
 					t2 = UtentiInAttesa.remove();
 					Contatore--;
 					DBQueries.createMatch(t1.getToken(), t2.getToken());
-					ActiveMatchesController.InsertMatch(DBQueries.getActiveMatchesByToken(t1.getToken()).getMatchID(), t1.getToken(), t2.getToken()); //per recuperare il match della partita ho riutilizzato dei metodi creati in precedenza...
+					ActiveMatchesController.InsertMatch(DBQueries.getActiveMatchesByToken(t1.getToken()).getMatch_id(), t1.getToken(), t2.getToken()); //per recuperare il match della partita ho riutilizzato dei metodi creati in precedenza...
 					System.out.println("due elementi sono stati inseriti nella tabella e tolti dalla coda");
 					Stamp();
 				}

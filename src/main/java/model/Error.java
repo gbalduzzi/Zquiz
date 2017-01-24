@@ -6,16 +6,16 @@ public class Error {
 	private String message;
 	
 	public Error(int e, String m){
-		this.setErr(e);
+		this.setError(e);
 		this.setMessage(m);
 	}
 
-	public int getErr() {
+	public int getError() {
 		return error;
 	}
 
-	public void setErr(int err) {
-		error = err;
+	public void setError(int error) {
+		this.error = error;
 	}
 
 	public String getMessage() {
@@ -25,6 +25,5 @@ public class Error {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-	
 	
 }

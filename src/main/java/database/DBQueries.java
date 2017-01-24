@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 import java.util.Random;
 import com.mysql.jdbc.PreparedStatement;
 
-import controllers.MatchController;
+import hello.MatchController;
 import model.CompleteQuestion;
 import model.Match;
 import model.MatchResult;
@@ -244,7 +244,7 @@ public class DBQueries {
 		Connection connect = DBConnection.getConnection();
 		
 		Random randomGenerator = new Random();
-		int match_ID = randomGenerator.nextInt(100);
+		int match_ID = randomGenerator.nextInt(Integer.MAX_VALUE);
 		try {
 			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("INSERT INTO partita(Match_ID,Username1,Username2,Status,Inizio) VALUES(?,?,?,?,?)");
 			statement.setInt(1, match_ID);

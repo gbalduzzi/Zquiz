@@ -1,4 +1,4 @@
-package controllers;
+package hello;
 
 import java.io.Console;
 import java.util.Dictionary;

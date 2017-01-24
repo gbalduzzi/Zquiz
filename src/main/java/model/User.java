@@ -22,15 +22,15 @@ public class User {
 		return username;
 	}
 
-	public String getNome() {
+	public String getName() {
 		return name;
 	}
 
-	public String getCognome() {
+	public String getSurname() {
 		return surname;
 	}
 
-	public int getVittorie() {
+	public int getWins() {
 		return wins;
 	}
 	

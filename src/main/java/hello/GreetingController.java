@@ -1,9 +1,10 @@
-package controllers;
+package hello;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,7 +30,7 @@ import utils.SessionGenerator;
 public class GreetingController {
 
 	// metodo post per registrazione utente
-
+	@CrossOrigin(origins = "*")
 	@RequestMapping(method= RequestMethod.POST, value = "/register")
 	public <T extends Object> T Register(@RequestParam(value="username",defaultValue="" ) String User, 
 										 @RequestParam(value="password", defaultValue="") String Password, 
@@ -67,6 +68,7 @@ public class GreetingController {
 
 
 	// metodo post per login utente
+	@CrossOrigin(origins = "*")
 	@RequestMapping(method= RequestMethod.POST, value = "/authenticate")
 	public <T> T Authenticate(@RequestParam(value="username",defaultValue="" ) String User, 
 							  @RequestParam(value="password", defaultValue="") String Password){
@@ -83,7 +85,8 @@ public class GreetingController {
 		//caso 2 : utente già registrato
 		if(ut != null){
 			Token tok = DBQueries.selectToken(User);
-
+			
+			System.out.println("Loggato!");
 			/*
 			 *  E se l'utente fosse registrato ma non avesse un token valido attivo?
 			 */
@@ -99,7 +102,7 @@ public class GreetingController {
 
 
 	// metodo get per restituire dati utente quando richiesti
-
+	@CrossOrigin(origins = "*")
 	@RequestMapping(method= RequestMethod.GET, value = "/user")
 	public User user(@RequestParam(value="username",defaultValue="") String User){
 
@@ -111,6 +114,7 @@ public class GreetingController {
 	}
 
 	//prova a fare la richiesta per una partita
+	@CrossOrigin(origins = "*")
 	@RequestMapping(method= RequestMethod.GET, value = "/searchmatch")
 	public <T> T SearchMatch(@RequestParam(value="token",defaultValue="") String Token) {
 
@@ -135,11 +139,17 @@ public class GreetingController {
 
 
 	//Richiesta domanda
+	@CrossOrigin(origins = "*")
 	@RequestMapping(method= RequestMethod.GET, value = "/question")
 	public <T> T Question(@RequestParam(value="match_id",defaultValue="") String MatchID, 
 						  @RequestParam(value="number",defaultValue="1") String Number, 
 						  @RequestParam(value="token",defaultValue="") String Token){
-
+		
+		System.out.println("Domanda richiesta!");
+		System.out.println("matchId:"+MatchID);
+		System.out.println("number:"+Number);
+		System.out.println("token:"+Token);
+		
 		//controllo che siano stati inseriti tutti i campi
 		if(MatchID.equals("") || Token.equals("") || Number.equals("")){
 			Error e= new Error(2, "Non hai inserito tutti i campi, manca o il MatchId o il Token");
@@ -176,10 +186,12 @@ public class GreetingController {
 		}
 	}
 	
+	@CrossOrigin(origins = "*")
 	@RequestMapping(method= RequestMethod.POST, value = "/reply")
 	public <T extends Object> T QuestionReply(@RequestParam(value="token",defaultValue="" ) String Token, 
 											  @RequestParam(value="number", defaultValue="") String Number, 
-											  @RequestParam(value="match_id",defaultValue="" ) String MatchId, @RequestParam(value="ReplyNum",defaultValue="" ) String ReplyNum ){
+											  @RequestParam(value="match_id",defaultValue="" ) String MatchId, 
+											  @RequestParam(value="reply_n",defaultValue="" ) String ReplyNum ){
 		
 		//controllo che siano stati inseriti tutti i campi
 		if(MatchId.equals("") || Token.equals("") || Number.equals("") || ReplyNum.equals("")){
@@ -240,6 +252,7 @@ public class GreetingController {
 		
 	}
 	
+	@CrossOrigin(origins = "*")
 	@RequestMapping(method= RequestMethod.GET, value = "/endmatch")
 	public <T> T EndMatch(@RequestParam(value="match_id",defaultValue="") String MatchID, 
 						  @RequestParam(value="token",defaultValue="") String Token){
