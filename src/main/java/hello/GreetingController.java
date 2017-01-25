@@ -1,11 +1,14 @@
 package hello;
 
+import java.util.Date;
+
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import config.ReadConfigFile;
 import database.DBQueries;
 import model.BaseClass;
 import model.CompleteQuestion;
@@ -15,6 +18,7 @@ import model.Question;
 import model.Reply;
 import model.Token;
 import model.User;
+import utils.MatchRequest;
 import utils.SessionGenerator;
 
 /**
@@ -231,9 +235,13 @@ public class GreetingController {
 			
 			Reply r = new Reply();
 			
+			ReadConfigFile r2 = ReadConfigFile.getInstance();
+			
 			if (q.getRight_answer() == reply) {
 				int score = Match.getScore(Token);
-				Match.setScore(score + 50, Token);
+				
+				Date d8 = new Date(Match.getTempo().getTime()+r2.getAnswerTime()*(n-1));
+				Match.setScore(score + 50/(int)QueueController.getDateDiff(d8), Token);
 				// TODO: score in base al tempo
 				
 				r.setCorrect(true);
