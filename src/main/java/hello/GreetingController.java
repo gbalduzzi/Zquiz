@@ -239,9 +239,13 @@ public class GreetingController {
 			
 			if (q.getRight_answer() == reply) {
 				int score = Match.getScore(Token);
-				
-				Date d8 = new Date(Match.getTempo().getTime()+r2.getAnswerTime()*(n-1));
-				Match.setScore(score + 50/(int)QueueController.getDateDiff(d8), Token);
+				// variabili per calcolare punteggio in base al tempo di risposta 
+				long d8 = (Match.getTempo().getTime());
+				long x = r2.getAnswerTime()*(n-1);
+				Date d9 = new Date(d8+x);
+				long w = QueueController.getDateDiff(d9)/1000;
+				double z = 1000/(double)w;
+				Match.setScore(score + (int)z, Token);
 				// TODO: score in base al tempo
 				
 				r.setCorrect(true);

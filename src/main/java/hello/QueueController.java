@@ -35,7 +35,7 @@ public class QueueController implements Runnable {
 				Iterator<MatchRequest> it = UtentiInAttesa.iterator();
 				while(it.hasNext()) {
 					MatchRequest matchRequest = it.next();
-					if(getDateDiff(matchRequest.getTempo())>10000000){ //se è 5 secondi che non riceve più una richiesta verrà rimosso( per testare abbiamo aumentato il tempo)
+					if(getDateDiff(matchRequest.getTempo())>15000){ //se è 5 secondi che non riceve più una richiesta verrà rimosso( per testare abbiamo aumentato il tempo)
 						it.remove();
 						Contatore--;
 						System.out.println("elemento eliminato dalla coda perchè il tempo è scaduto \n");
