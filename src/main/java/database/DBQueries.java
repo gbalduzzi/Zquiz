@@ -303,6 +303,7 @@ public class DBQueries {
 			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("UPDATE partita SET Status = 0, Vincitore_ID = ?  WHERE Match_ID = ?  ");
 			statement.setString(1, winner);
 			statement.setInt(2, match_id);
+			DBQueries.IncrementWin(winner);
 			statement.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -403,6 +404,22 @@ public class DBQueries {
 		return null;
 	}
 
+	public static void IncrementWin(String User){
+
+		Connection connect = DBConnection.getConnection();
+		
+		try {
+			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("UPDATE utente SET Vittorie = Vittorie +1 WHERE Username = ?");
+			statement.setString(1, User);
+			statement.executeUpdate();
+			statement.close();
+		} catch(SQLException e) {
+			e.printStackTrace();
+			DBConnection.rollbackConnection(connect); //Evito di lasciare operazioni "parziali" sul DB		
+		} finally {
+			DBConnection.closeConnection(connect);
+		}
+	}
 	
 
 	
@@ -445,8 +462,8 @@ public class DBQueries {
 		
 		//insertResult("martinparre", 83, 200);
 		
-		EndMatch(83, "martinparre");
-		
+		//EndMatch(83, "martinparre");
+		IncrementWin("dave94");
 	}
 
 }
