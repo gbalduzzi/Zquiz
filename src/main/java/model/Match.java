@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 //calsse da inviare col json quando riesco, dopo una richiesta dell'utente a inviare un apartita.
-public class Match {
+public class Match extends BaseClass {
 
 	private int match_id;
 	private String opponent;

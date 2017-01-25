@@ -3,7 +3,7 @@ package model;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class User {
+public class User extends BaseClass {
 
     
     private final String username;

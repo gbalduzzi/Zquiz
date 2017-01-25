@@ -1,6 +1,6 @@
 package model;
 
-public class Error {
+public class Error extends BaseClass {
 
 	private int error;
 	private String message;

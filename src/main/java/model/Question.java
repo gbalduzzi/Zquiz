@@ -1,6 +1,6 @@
 package model;
 
-public class Question {
+public class Question extends BaseClass {
 	
 	private String question;
 	private String answer_one;

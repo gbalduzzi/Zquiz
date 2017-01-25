@@ -3,7 +3,7 @@ package model;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class Token {
+public class Token extends BaseClass {
 
 	
 	private String token;

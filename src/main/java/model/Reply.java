@@ -1,6 +1,6 @@
 package model;
 
-public class Reply {
+public class Reply extends BaseClass {
 	private Boolean correct;
 
 	public Boolean getCorrect() {

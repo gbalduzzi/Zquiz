@@ -1,12 +1,8 @@
 package hello;
 
-import java.io.Console;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
-
-import javax.swing.text.html.HTMLDocument.Iterator;
 
 import config.ReadConfigFile;
 import database.DBQueries;

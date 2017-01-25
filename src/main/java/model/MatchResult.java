@@ -3,7 +3,7 @@ package model;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class MatchResult {
+public class MatchResult extends BaseClass {
 	private int score;
 	private int opponent_score;
 	
