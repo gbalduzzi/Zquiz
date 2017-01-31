@@ -436,6 +436,28 @@ public class DBQueries {
 		}
 	}
 
+	public static int getWin(String token){
+		String utente = DBQueries.getUserFromToken(token);
+
+		Connection connect = DBConnection.getConnection();
+		int vittorie = 0;
+		try {
+			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("SELECT Vittorie FROM utente WHERE Username = ?");
+			statement.setString(1, utente);
+			ResultSet data = statement.executeQuery();
+			while(data.next()){
+			vittorie = data.getInt(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			DBConnection.rollbackConnection(connect); //Evito di lasciare operazioni "parziali" sul DB		
+		} finally {
+			DBConnection.closeConnection(connect);
+		}
+		return vittorie;
+	}
+
+
 	
 	
 	public static void main(String[] args) {
@@ -479,6 +501,7 @@ public class DBQueries {
 		//EndMatch(83, "martinparre");
 		//IncrementWin("dave94");
 		//EndAllMatch();
+		System.out.println(getWin("dave941t1j63ivum2takn1g2rv0dmmgg"));
 	}
 
 }
