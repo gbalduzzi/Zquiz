@@ -56,4 +56,12 @@ public class ReadConfigFile {
 	public int getAnswerTime() {
 		return Integer.parseInt(prop.getProperty("answertime"));
 	}
+	
+	public String getTestToken1() {
+		return prop.getProperty("token1");
+	}
+	
+	public String getTestToken2() {
+		return prop.getProperty("token2");
+	}
 }
