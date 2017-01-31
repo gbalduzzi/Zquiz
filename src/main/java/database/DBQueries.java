@@ -291,10 +291,6 @@ public class DBQueries {
     }
 
 
-
-	//CreatePartita()
-	//metodo che riceve in ingresso i due token.. genera un matchid casuale e inserisce la partita nella tabella
-
 	public static void EndMatch(int match_id, String winner){
 		
 		DBQueries.IncrementWin(winner);
@@ -424,6 +420,22 @@ public class DBQueries {
 	}
 	
 
+	public static void EndAllMatch(){
+		
+		Connection connect = DBConnection.getConnection();
+		
+		try {
+			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("UPDATE partita SET Status = 0 WHERE Status = ?  ");
+			statement.setInt(1, 1);
+			statement.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			DBConnection.rollbackConnection(connect); //Evito di lasciare operazioni "parziali" sul DB		
+		} finally {
+			DBConnection.closeConnection(connect);
+		}
+	}
+
 	
 	
 	public static void main(String[] args) {
@@ -465,7 +477,8 @@ public class DBQueries {
 		//insertResult("martinparre", 83, 200);
 		
 		//EndMatch(83, "martinparre");
-		IncrementWin("dave94");
+		//IncrementWin("dave94");
+		//EndAllMatch();
 	}
 
 }
