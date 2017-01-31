@@ -57,6 +57,12 @@ public class QueueController implements Runnable {
 			finally{
 				lock.unlock();
 			}
+			
+			try {
+				Thread.sleep(500);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 	}

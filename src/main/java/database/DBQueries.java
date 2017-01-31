@@ -296,14 +296,15 @@ public class DBQueries {
 	//metodo che riceve in ingresso i due token.. genera un matchid casuale e inserisce la partita nella tabella
 
 	public static void EndMatch(int match_id, String winner){
-
+		
+		DBQueries.IncrementWin(winner);
+		
 		Connection connect = DBConnection.getConnection();
 		
 		try {
 			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("UPDATE partita SET Status = 0, Vincitore_ID = ?  WHERE Match_ID = ?  ");
 			statement.setString(1, winner);
 			statement.setInt(2, match_id);
-			DBQueries.IncrementWin(winner);
 			statement.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -407,6 +408,7 @@ public class DBQueries {
 	public static void IncrementWin(String User){
 
 		Connection connect = DBConnection.getConnection();
+		System.out.println("Aumento vittorie per "+User);
 		
 		try {
 			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("UPDATE utente SET Vittorie = Vittorie +1 WHERE Username = ?");
