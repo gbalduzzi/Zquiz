@@ -3,8 +3,11 @@ package hello;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.locks.ReentrantLock;
+
+import javax.xml.crypto.Data;
 
 import database.DBQueries;
 import model.Match;
@@ -15,14 +18,10 @@ import utils.MatchRequest;
 
 public class QueueController implements Runnable {
 
-	static Queue<MatchRequest> UtentiInAttesa = new LinkedList<MatchRequest>();
+	static List<MatchRequest> UtentiInAttesa = new LinkedList<MatchRequest>();
 	static int Contatore=0; //conta gli elementi al momento presenti nella coda
 
 	static ReentrantLock lock = new ReentrantLock();
-
-
-	MatchRequest t1;
-	MatchRequest t2;
 
 	public QueueController(){}
 
@@ -35,7 +34,7 @@ public class QueueController implements Runnable {
 				Iterator<MatchRequest> it = UtentiInAttesa.iterator();
 				while(it.hasNext()) {
 					MatchRequest matchRequest = it.next();
-					if(getDateDiff(matchRequest.getTempo())>15000){ //se è 5 secondi che non riceve più una richiesta verrà rimosso( per testare abbiamo aumentato il tempo)
+					if(getDateDiff(matchRequest.getTempo())>5000){ 
 						it.remove();
 						Contatore--;
 						System.out.println("elemento eliminato dalla coda perchè il tempo è scaduto \n");
@@ -43,21 +42,39 @@ public class QueueController implements Runnable {
 					}
 				}
 
-				while(Contatore >= 2){ //accoppio i priomi due giocatori nella coda.
-					t1= UtentiInAttesa.remove();
-					Contatore--;
-					t2 = UtentiInAttesa.remove();
-					Contatore--;
-					DBQueries.createMatch(t1.getToken(), t2.getToken());
-					ActiveMatchesController.InsertMatch(DBQueries.getActiveMatchesByToken(t1.getToken()).getMatch_id(), t1.getToken(), t2.getToken()); //per recuperare il match della partita ho riutilizzato dei metodi creati in precedenza...
-					System.out.println("due elementi sono stati inseriti nella tabella e tolti dalla coda");
-					Stamp();
+				Iterator<MatchRequest> it2 = UtentiInAttesa.iterator();
+				MatchRequest precedente = it2.next();
+				Date minore;
+				while(it2.hasNext()){
+					MatchRequest successivo = it2.next();
+
+					int differenza = (successivo.getVittorie()-precedente.getVittorie())*1000;
+					
+
+					if(precedente.getTempoIniziale().before(successivo.getTempoIniziale())){
+						minore= precedente.getTempoIniziale();
+					} else{
+						minore= successivo.getTempoIniziale();
+					}
+
+					long dif2= getDateDiff(minore);
+
+					if(differenza/dif2>1){
+						UtentiInAttesa.remove(precedente);
+						UtentiInAttesa.remove(successivo);
+						DBQueries.createMatch(precedente.getToken(), successivo.getToken());
+						ActiveMatchesController.InsertMatch(DBQueries.getActiveMatchesByToken(precedente.getToken()).getMatch_id(), precedente.getToken(), successivo.getToken());
+						System.out.println("due elementi sono stati inseriti nella tabella e tolti dalla coda");
+						Stamp();
+						break;
+					}
+					precedente=successivo;
 				}
 			}
 			finally{
 				lock.unlock();
 			}
-			
+
 			try {
 				Thread.sleep(500);
 			} catch(Exception e) {
@@ -90,11 +107,11 @@ public class QueueController implements Runnable {
 			Match newMatch = DBQueries.getActiveMatchesByToken(Token); //do per scontato che la partita a questo punto sia appena stata inserita.
 
 			if(newMatch != null){
-				
+
 				return newMatch;
-				
+
 			}
-			
+
 			if(CheckCoda(Token)){ //controlla se il token è già nella coda
 				for (MatchRequest matchRequest : UtentiInAttesa) { //cerco l'elemento che mi interessa e aggiorno il suo timestamp
 					if(matchRequest.getToken().equals(Token)){
@@ -105,7 +122,7 @@ public class QueueController implements Runnable {
 					}
 				}
 			}else{//altrimenti se non è già contenuto aggiungo l'elemento alla coda.
-				UtentiInAttesa.offer(x);
+				InsertOrdine(x);
 				Contatore++;
 				System.out.println("valore aggiunto");
 				Stamp();
@@ -116,8 +133,15 @@ public class QueueController implements Runnable {
 		return null;
 	}
 
-
-
+	public static void InsertOrdine(MatchRequest u){
+		int index=0;
+		for (MatchRequest matchRequest : UtentiInAttesa) {
+			if(matchRequest.getVittorie()>u.getVittorie()){
+				UtentiInAttesa.add(index, u);
+			}
+			index++;
+		}
+	}
 
 	//metodo checkcoda()
 	//mi controlla se l'utente è già nella coda-> contains elemento in coda e tornerà true o false.
