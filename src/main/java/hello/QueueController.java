@@ -42,33 +42,36 @@ public class QueueController implements Runnable {
 					}
 				}
 
-				Iterator<MatchRequest> it2 = UtentiInAttesa.iterator();
-				MatchRequest precedente = it2.next();
-				Date minore;
-				while(it2.hasNext()){
-					MatchRequest successivo = it2.next();
+				if(Contatore>2){
 
-					int differenza = (successivo.getVittorie()-precedente.getVittorie())*1000;
-					
+					Iterator<MatchRequest> it2 = UtentiInAttesa.iterator();
+					MatchRequest precedente = it2.next();
+					Date minore;
+					while(it2.hasNext()){
+						MatchRequest successivo = it2.next();
 
-					if(precedente.getTempoIniziale().before(successivo.getTempoIniziale())){
-						minore= precedente.getTempoIniziale();
-					} else{
-						minore= successivo.getTempoIniziale();
+						int differenza = Math.abs((successivo.getVittorie()-precedente.getVittorie()))*1000;
+
+
+						if(precedente.getTempoIniziale().before(successivo.getTempoIniziale())){
+							minore= precedente.getTempoIniziale();
+						} else{
+							minore= successivo.getTempoIniziale();
+						}
+
+						long dif2= getDateDiff(minore);
+
+						if(differenza/dif2>1){
+							UtentiInAttesa.remove(precedente);
+							UtentiInAttesa.remove(successivo);
+							DBQueries.createMatch(precedente.getToken(), successivo.getToken());
+							ActiveMatchesController.InsertMatch(DBQueries.getActiveMatchesByToken(precedente.getToken()).getMatch_id(), precedente.getToken(), successivo.getToken());
+							System.out.println("due elementi sono stati inseriti nella tabella e tolti dalla coda");
+							Stamp();
+							break;
+						}
+						precedente=successivo;
 					}
-
-					long dif2= getDateDiff(minore);
-
-					if(differenza/dif2>1){
-						UtentiInAttesa.remove(precedente);
-						UtentiInAttesa.remove(successivo);
-						DBQueries.createMatch(precedente.getToken(), successivo.getToken());
-						ActiveMatchesController.InsertMatch(DBQueries.getActiveMatchesByToken(precedente.getToken()).getMatch_id(), precedente.getToken(), successivo.getToken());
-						System.out.println("due elementi sono stati inseriti nella tabella e tolti dalla coda");
-						Stamp();
-						break;
-					}
-					precedente=successivo;
 				}
 			}
 			finally{
