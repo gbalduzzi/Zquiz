@@ -42,7 +42,7 @@ public class QueueController implements Runnable {
 					}
 				}
 
-				if(Contatore>2){
+				if(UtentiInAttesa.size()>=2){
 
 					Iterator<MatchRequest> it2 = UtentiInAttesa.iterator();
 					MatchRequest precedente = it2.next();
@@ -51,17 +51,22 @@ public class QueueController implements Runnable {
 						MatchRequest successivo = it2.next();
 
 						int differenza = Math.abs((successivo.getVittorie()-precedente.getVittorie()))*1000;
-
+						System.out.println("differenza:"+differenza);
 
 						if(precedente.getTempoIniziale().before(successivo.getTempoIniziale())){
 							minore= precedente.getTempoIniziale();
 						} else{
 							minore= successivo.getTempoIniziale();
 						}
+						
+						System.out.println("tempo minore:"+minore);
 
 						long dif2= getDateDiff(minore);
+						System.out.println("dif2:"+dif2);
+						
+						System.out.println("calcolo:"+dif2/differenza);
 
-						if(differenza/dif2>1){
+						if(dif2/differenza>=1){
 							UtentiInAttesa.remove(precedente);
 							UtentiInAttesa.remove(successivo);
 							DBQueries.createMatch(precedente.getToken(), successivo.getToken());
@@ -141,9 +146,10 @@ public class QueueController implements Runnable {
 		for (MatchRequest matchRequest : UtentiInAttesa) {
 			if(matchRequest.getVittorie()>u.getVittorie()){
 				UtentiInAttesa.add(index, u);
+				return;
 			}
-			index++;
 		}
+		UtentiInAttesa.add(u);
 	}
 
 	//metodo checkcoda()
