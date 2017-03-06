@@ -13,6 +13,10 @@ import config.ReadConfigFile;
  */
 public class DBConnection {
 	
+	/**
+	 * Crea la connessione con il DB
+	 * @return Connessione al database
+	 */
 	public static Connection getConnection() {
 		ReadConfigFile r = ReadConfigFile.getInstance();
 		try {
@@ -25,6 +29,10 @@ public class DBConnection {
 		return null;
 	}
 	
+	/**
+	 * Chiude la connessione al database
+	 * @param activeConnection Connessione da chiudere
+	 */
 	public static void closeConnection(Connection activeConnection) {
 		
 		try {
@@ -36,6 +44,10 @@ public class DBConnection {
 		
 	}
 	
+	/**
+	 * Rollback della transazione in caso di problemi
+	 * @param activeConnection connessione di cui effettuare il rollback
+	 */
 	public static void rollbackConnection(Connection activeConnection) {
 		
 		try {

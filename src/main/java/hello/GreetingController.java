@@ -18,7 +18,6 @@ import model.Question;
 import model.Reply;
 import model.Token;
 import model.User;
-import utils.MatchRequest;
 import utils.SessionGenerator;
 
 /**
@@ -30,7 +29,14 @@ import utils.SessionGenerator;
 @RestController
 public class GreetingController {
 
-	// metodo post per registrazione utente
+	/**
+	 * EndPoint API per registrare un nuovo utente
+	 * @param User Username che si vuole registrare
+	 * @param Password Password dell'utente (ricevuta in chiaro)
+	 * @param Nome Nome utente
+	 * @param Cognome Cognome Utente
+	 * @return JSON di successo contenente il token di autenticazione
+	 */
 	@CrossOrigin(origins = "*")
 	@RequestMapping(method= RequestMethod.POST, value = "/register")
 	public BaseClass Register(@RequestParam(value="username",defaultValue="" ) String User, 
@@ -46,9 +52,9 @@ public class GreetingController {
 
 		User ut = DBQueries.getUser(User);
 
-		//caso 2 : utente già registrato			
+		//caso 2 : utente registrato			
 		if(ut != null){
-			Error x = new Error(1, "L'utente che stai provando a registrare è già presente");
+			Error x = new Error(1, "L'utente che stai provando a registrare esiste nel database");
 			return x;
 		}
 		// caso 3 : utente non ancora registrato
@@ -67,8 +73,12 @@ public class GreetingController {
 		}
 	}
 
-
-	// metodo post per login utente
+	/**
+	 * EndPoint API per autenticazione utente
+	 * @param User Username dell'utente da autenticare
+	 * @param Password Password inserita dall'utente
+	 * @return JSON di successo con token di autenticazione
+	 */
 	@CrossOrigin(origins = "*")
 	@RequestMapping(method= RequestMethod.POST, value = "/authenticate")
 	public BaseClass Authenticate(@RequestParam(value="username",defaultValue="" ) String User, 
@@ -82,7 +92,7 @@ public class GreetingController {
 
 		User ut = DBQueries.authUser(User, Password);
 
-		//caso 2 : utente già registrato
+		//caso 2 : utente registrato
 		if(ut != null){
 			Token tok = DBQueries.selectToken(User);
 
@@ -99,8 +109,11 @@ public class GreetingController {
 		}
 	}
 
-
-	// metodo get per restituire dati utente quando richiesti
+	/**
+	 * EndPoint API per ottenere i dettagli di un utente
+	 * @param User Username di cui si vogliono i dettagli
+	 * @return JSON contenente i dati dell'utente
+	 */
 	@CrossOrigin(origins = "*")
 	@RequestMapping(method= RequestMethod.GET, value = "/user")
 	public User user(@RequestParam(value="username",defaultValue="") String User){
@@ -112,7 +125,11 @@ public class GreetingController {
 		return null;
 	}
 
-	//prova a fare la richiesta per una partita
+	/**
+	 * EndPoint API per richiedere una nuova partita
+	 * @param Token Token di autenticazione dell'utente
+	 * @return JSON contenente i dati della partita trovata oppure l'invito ad aspettare
+	 */
 	@CrossOrigin(origins = "*")
 	@RequestMapping(method= RequestMethod.GET, value = "/searchmatch")
 	public BaseClass SearchMatch(@RequestParam(value="token",defaultValue="") String Token) {
@@ -136,8 +153,13 @@ public class GreetingController {
 		}
 	}
 
-
-	//Richiesta domanda
+	/**
+	 * EndPoint API per richiedere i dati della domanda per una partita attiva
+	 * @param MatchID ID del match in corso
+	 * @param Number Numero della domanda richiesta (compresa tra 1 e 4)
+	 * @param Token Token di autenticazione dell'utente
+	 * @return JSON contenente i dati della domanda richiesta
+	 */
 	@CrossOrigin(origins = "*")
 	@RequestMapping(method= RequestMethod.GET, value = "/question")
 	public BaseClass Question(@RequestParam(value="match_id",defaultValue="") String MatchID, 
@@ -180,11 +202,19 @@ public class GreetingController {
 			Question requestedQuestion = new Question(x.getDomanda(n), x.getScore(Token), (x.getUser1().equals(User))?x.getScore1(1):x.getScore1(0) , n);
 			return requestedQuestion;
 		}else{
-			Error e = new Error(4, "La partita non è attiva");
+			Error e = new Error(4, "Partita non attiva");
 			return e;
 		}
 	}
 	
+	/**
+	 * Endpoint API per ricevere le risposte delle domande
+	 * @param Token Token di autenticazione dell'utente rilasciato al login
+	 * @param Number Numero della domanda a cui si vuole rispondere. Compreso tra 1 e 4
+	 * @param MatchId ID della partita
+	 * @param ReplyNum Numero della risposta scelta dall'utente. Compresa tra 1 e 4
+	 * @return JSON che definisce la risposta corretta o sbagliata
+	 */
 	@CrossOrigin(origins = "*")
 	@RequestMapping(method= RequestMethod.POST, value = "/reply")
 	public BaseClass QuestionReply(@RequestParam(value="token",defaultValue="" ) String Token, 
@@ -202,7 +232,7 @@ public class GreetingController {
 		int n = Integer.parseInt(Number);
 		int reply = Integer.parseInt(ReplyNum);
 		
-		//Controllo la validità del token
+		//Controllo la validita' del token
 		String User =   DBQueries.getUserFromToken(Token);
 		if(User == null){
 			Error e = new Error(1, "Token inviato non riconosciuto. Potrebbe essere scaduto");
@@ -217,13 +247,13 @@ public class GreetingController {
 		
 		//Controllo che la partita sia attiva
 		if(!ActiveMatchesController.PartiteAttive.containsKey(match)){
-			Error e = new Error(4, "La partita selezionata non esiste o non è attiva");
+			Error e = new Error(4, "La partita selezionata non esiste");
 			return e;
 			
 		} else {
 			
 			if (!DBQueries.checkReplies(match, User, n)) {
-				Error e = new Error(5, "Hai già risposto a questa domanda");
+				Error e = new Error(5, "Hai gia' risposto a questa domanda");
 				return e;
 			}
 			
@@ -258,6 +288,12 @@ public class GreetingController {
 		
 	}
 	
+	/**
+	 * EndPoint API per ottenere i dati finali di un match
+	 * @param MatchID ID del match di cui si chiedono i dati
+	 * @param Token Token di autenticazione dell'utente
+	 * @return JSON con i dati finali della partita
+	 */
 	@CrossOrigin(origins = "*")
 	@RequestMapping(method= RequestMethod.GET, value = "/endmatch")
 	public BaseClass EndMatch(@RequestParam(value="match_id",defaultValue="") String MatchID, 
@@ -271,7 +307,7 @@ public class GreetingController {
 		
 		int match_id = Integer.parseInt(MatchID);
 		
-		//Controllo la validità del token
+		//Controllo la validita' del token
 		String User =   DBQueries.getUserFromToken(Token);
 		if(User == null){
 			Error e = new Error(1, "Token inviato non riconosciuto. Potrebbe essere scaduto");

@@ -13,16 +13,6 @@ public class MatchController {
 	private int[] score = {0, 0};
 	private String[] Users = {"", ""};
 	
-	
-	/**
-	public Questions(DomandaSingola d1, DomandaSingola d2, DomandaSingola d3, DomandaSingola d4){
-		this.domanda1 = d1;
-		this.domanda2 = d2;
-		this.domanda3 = d3;
-		this.domanda4 = d4;
-		this.setTempo(new Date());
-	} **/
-	
 	public MatchController(CompleteQuestion d1, CompleteQuestion d2, CompleteQuestion d3, CompleteQuestion d4, String u1, String u2){
 		this.Domande[0] = d1;
 		this.Domande[1] = d2;

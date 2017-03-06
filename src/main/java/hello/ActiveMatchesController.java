@@ -10,7 +10,7 @@ import database.DBQueries;
 public class ActiveMatchesController implements Runnable{
 	
 	//Lista delle partite attive (megluo usare dictionary) (key-> matchID, Oggetto contenente tutti i dati)
-	//Ogni oggetto della lista conterrà già tutte le domande.
+	//Ogni oggetto della lista conterra' gia' tutte le domande.
 	//Dictionary<int MatchID, Questions x> PartiteAttive;
 	
 	public static Map<Integer, MatchController> PartiteAttive = new HashMap<Integer, MatchController>();
@@ -18,14 +18,14 @@ public class ActiveMatchesController implements Runnable{
 	static ReentrantLock lock = new ReentrantLock();
 
 	public void run(){
-		//in questo thread faccio i controlli sulla lista delle partite attive. Quando rimuovo un partita dalla lista(perchè è scaduta
-		//oppure perchè è semplicemente finita) allora rimuovo dalla lista la partita e setto il valore lo stato della partita nel database a 0.
+		//in questo thread faccio i controlli sulla lista delle partite attive. Quando rimuovo un partita dalla lista(perche' e' scaduta
+		//oppure perche' e' semplicemente finita) allora rimuovo dalla lista la partita e setto il valore lo stato della partita nel database a 0.
 		while(true){
 			lock.lock();
 			ReadConfigFile r = ReadConfigFile.getInstance();
 			for(int key : PartiteAttive.keySet()){
 				if(QueueController.getDateDiff(PartiteAttive.get(key).getTempo()) > r.getAnswerTime()*4 ){ //tempo oltre al quale decidiamo che la partita si chiude
-					// Chiudo la partita perchè è passato troppo tempo
+					// Chiudo la partita perche' e' passato troppo tempo
 					MatchController m = PartiteAttive.get(key);
 					// Salvo i risultati della partita
 					DBQueries.insertResult(m.getUser1(), key, m.getScore1(0));
@@ -49,7 +49,7 @@ public class ActiveMatchesController implements Runnable{
 		}
 	}
 	
-	//metodo ststico per inserire una partita nella lista (ogni oggetto della lista conterrà già tutte le domande previste, così interrogo il database un unica volta).
+	//metodo ststico per inserire una partita nella lista (ogni oggetto della lista conterra' gia' tutte le domande previste, cosi' interrogo il database un unica volta).
 	public static void InsertMatch(int Match, String t1, String t2){
 		System.out.println("partita inserita nel dictionary");
 		lock.lock();

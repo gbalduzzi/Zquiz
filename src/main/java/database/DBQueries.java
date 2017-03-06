@@ -15,8 +15,15 @@ import model.Token;
 import model.User;
 import utils.MD5;
 
+/**
+ * @author gioba
+ *
+ */
 public class DBQueries {
 
+	/**
+	 * Testa la connessione con il DB
+	 */
 	public static void connection() {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
@@ -25,12 +32,13 @@ public class DBQueries {
 			e.printStackTrace();
 		}
 	}
-		
 
-	/*
-	 * 
-	 * Metodo per inserire utente 
-	 * usato nel metodo /register
+	/**
+	 * Inserisce nel database un nuovo utente
+	 * @param username
+	 * @param password
+	 * @param firstName
+	 * @param secondName
 	 */
 	public static void insertUser(String username, String password, String firstName, String secondName){
 		password = MD5.encode(password);
@@ -56,18 +64,18 @@ public class DBQueries {
 	}
 
 
-	/*
-	 * metodo per inserire token nel database
-	 * usato nel metodo /register
+	/**
+	 * Inserisce nel database un nuovo token
+	 * @param token
+	 * @param username
+	 * @param timestamp
 	 */
-
-
 	public static void insertToken(String token, String username, Timestamp timestamp){
 		
 		Connection connect = DBConnection.getConnection();
 		
 		try {
-			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("INSERT INTO token(Token,Username,FineValidità) VALUES(?,?,?)");
+			PreparedStatement statement = (PreparedStatement) connect.prepareStatement("INSERT INTO token(Token,Username,FineValidita) VALUES(?,?,?)");
 			statement.setString(1, token);
 			statement.setString(2, username);
 			statement.setTimestamp(3, timestamp);
@@ -83,12 +91,10 @@ public class DBQueries {
 	}
 
 
-
-	/*
-	 * metodo per cancellare elemento dal database.
-	 * 
+	/**
+	 * Elimina un utente dal database
+	 * @param username
 	 */
-
 	public static void deleteUser(String username){
 
 		Connection connect = DBConnection.getConnection();
@@ -99,7 +105,7 @@ public class DBQueries {
 			statement.executeUpdate();
 			statement.close();
 			System.out.println("Utente eliminato correttamente dalla tabella :)");
-			//dovrò eliminare anche il token
+			//devo eliminare anche il token
 		} catch (SQLException e) {
 			e.printStackTrace();
 			DBConnection.rollbackConnection(connect); //Evito di lasciare operazioni "parziali" sul DB		
@@ -108,9 +114,11 @@ public class DBQueries {
 		}
 	}
 
-	// metodo che restituisce un utente
-	// usato nel metodo /register
-
+	/**
+	 * Ottiene i dati del DB per l'utente richiesto
+	 * @param utente username dell'utente
+	 * @return
+	 */
 	public static User getUser(String utente){
 		
 		Connection connect = DBConnection.getConnection();
@@ -132,9 +140,12 @@ public class DBQueries {
 
 	}
 
-	// metodo select utente che restituisce utente e password di un utente
-	// usato nel metodo /authenticate
-
+	/**
+	 * Seleziona un utente da username e password (utilizzato per il login utente)
+	 * @param user Username inserito dall'utente
+	 * @param password Password inserita dall'utente
+	 * @return User se presente in DB oppure null
+	 */
 	public static User authUser(String user, String password){
 		password = MD5.encode(password);
 		User ut = null;
@@ -155,9 +166,11 @@ public class DBQueries {
 		return ut;
 	}
 
-	// metodo che restituisce il token legato ad un utente
-	// usato nel metodo /authenticate
-
+	/**
+	 * Restituisce il token legato ad un utente
+	 * @param user Username dell'utente
+	 * @return Token dell'utente
+	 */
 	public static Token selectToken(String user){
 
 		Token t = null;
@@ -177,9 +190,11 @@ public class DBQueries {
 		return t;
 	}
 
-	// metodo che restituisce il token l'utente legato al token
-	// usato nel metodo check partita attiva
-
+	/**
+	 * Restituisce l'username dell'utente legato al token
+	 * @param token
+	 * @return username oppure null
+	 */
 	public static String getUserFromToken(String token){
 		String s = null;
 
@@ -204,10 +219,11 @@ public class DBQueries {
 		return s;
 	}
 
-	//CheckPartitaAttiva(){
-	//metodo che torna le partite associate(resultset) al token con stato uguale a 1 (il valore che ricevo è lo user)
-	//torna tutti gli elementi della riga.
-
+	/**
+	 * Restituisce il match attivo di un utente
+	 * @param token
+	 * @return Match attivo oppure null
+	 */
 	public static Match getActiveMatchesByToken(String token){
 		String utente = DBQueries.getUserFromToken(token);
 
@@ -232,10 +248,11 @@ public class DBQueries {
 
 	}
 
-
-	//CreatePartita()
-	//metodo che riceve in ingresso i due token.. genera un matchid casuale e inserisce la partita nella tabella
-
+	/**
+	 * Inserisce in Database un match tra i due utenti selezionati
+	 * @param token1 Token utente 1
+	 * @param token2 Token utente 2
+	 */
 	public static void createMatch(String token1, String token2){
 		
 		String tok1 = getUserFromToken(token1);
@@ -263,6 +280,12 @@ public class DBQueries {
 		}
 	}
 	
+    /**
+     * Crea l'oggetto di gestione delle domande 
+     * @param t1 Token utente 1
+     * @param t2 Token utente 2
+     * @return MatchController con le domande per la partita
+     */
     public static MatchController selectDomande(String t1, String t2){
 
         String u1 = DBQueries.getUserFromToken(t1);
@@ -290,7 +313,11 @@ public class DBQueries {
         return q;
     }
 
-
+	/**
+	 * Chiude una partita attiva
+	 * @param match_id ID del match da chiudere
+	 * @param winner username del vincitore
+	 */
 	public static void EndMatch(int match_id, String winner){
 		
 		DBQueries.IncrementWin(winner);
@@ -310,6 +337,13 @@ public class DBQueries {
 		}
 	}
 
+	/**
+	 * Inserisce in DB la risposta ad una domanda
+	 * @param MatchId
+	 * @param User Username dell'utente che ha risposto
+	 * @param Domanda Numero della domanda nella partita (compresa tra 1 e 4)
+	 * @param Risposta Numero dell'opzione selezionata dall'utente (compreso tra 1 e 4)
+	 */
 	public static void insertReply(int MatchId, String User, int Domanda, int Risposta){
 
 		Connection connect = DBConnection.getConnection();
@@ -330,6 +364,13 @@ public class DBQueries {
 		}
 	}
 	
+	/**
+	 * Controlla se l'utente ha una risposta alla stessa domanda presente in DB
+	 * @param MatchId
+	 * @param User
+	 * @param Domanda Numero della domanda nella partita (compresa tra 1 e 4)
+	 * @return True se la domanda ha una risposta presente in DB, False altrimenti
+	 */
 	public static boolean checkReplies(int MatchId, String User, int Domanda){
 
 		Connection connect = DBConnection.getConnection();
@@ -359,6 +400,12 @@ public class DBQueries {
 	}
 	
 	
+	/**
+	 * Inserisce in DB i risultati finali della partita
+	 * @param User Username dell'utente
+	 * @param MatchId
+	 * @param score Punteggio dell'utente
+	 */
 	public static void insertResult(String User, int MatchId, int score){
 
 		Connection connect = DBConnection.getConnection();
@@ -377,13 +424,13 @@ public class DBQueries {
 			DBConnection.closeConnection(connect);
 		}
 	}
-
-	// metodo get result from match( match , user)
-	/*
-	 * selezionare risultato e utente relativo al match
-	 * e li passo al metodo creatematchresultfromresult set
-	 */
 	
+	/**
+	 * Ottiene il risultato di un match per un utente
+	 * @param MatchId
+	 * @param User
+	 * @return MatchResult della partita richiesta o null se la partita non esiste
+	 */
 	public static MatchResult getResultFromMatch(int MatchId, String User){
 
 		Connection connect = DBConnection.getConnection();
@@ -401,6 +448,10 @@ public class DBQueries {
 		return null;
 	}
 
+	/**
+	 * Incrementa il contatore delle vittorie per il dato utente
+	 * @param User
+	 */
 	public static void IncrementWin(String User){
 
 		Connection connect = DBConnection.getConnection();
@@ -420,6 +471,9 @@ public class DBQueries {
 	}
 	
 
+	/**
+	 * Chiude tutti i match ativi.
+	 */
 	public static void EndAllMatch(){
 		
 		Connection connect = DBConnection.getConnection();
@@ -436,6 +490,11 @@ public class DBQueries {
 		}
 	}
 
+	/**
+	 * Restituisce il numero di vittorie per l'utente
+	 * @param token
+	 * @return numero di vittorie dell'utente
+	 */
 	public static int getWin(String token){
 		String utente = DBQueries.getUserFromToken(token);
 
@@ -455,53 +514,6 @@ public class DBQueries {
 			DBConnection.closeConnection(connect);
 		}
 		return vittorie;
-	}
-
-
-	
-	
-	public static void main(String[] args) {
-		//insertUser("BLABLA", "PROVA", "PINCO", "PALLO");
-		
-		//ConnectionToMySql_InsertElement("GBalduz", "clusone", "Giorgio", "Balduzzi");
-		//ConnectionToMySql_InsertElement("DBertoc", "castione", "Danilo", "Bertocchi");
-		//ConnectionToMySql_InsertElement("Dave94", "zerrone", "Davide", "Zerre");
-		//ConnectionToMySql_InsertElement("Martinparre2", "Juventus", "Martin", "Cossali");
-		//ConnectionToMySql_DeleteElement("Martinparre2");
-		//ConnectionToMySql_GetElement();
-		//ConnectionToMySql_SelectUtente("Martinparre");
-		//ConnectionToMySql_SelectUtente("DBertoc");
-		//ConnectionToMySql_InsertToken("zerrone", "dave94", sqlTimestamp);
-
-		//ConnectionToMySql_SelectUtente2("martinparre", "juventus"); 
-		//ConnectionToMySql_SelectUtente2("g.balduz","clusone"); 
-		//ConnectionToMySql_SelectToken("martinparre");
-
-		//ConnectionToMySql_CheckPartitaAttiva("martinparres1jbl49tdarf4g3qt02va5qt3b");
-
-		// funzionano le 2 righe sotto
-		//String x =ConnectionToMySql_SelectUsername("martinparres1jbl49tdarf4g3qt02va5qt3b");
-		//System.out.println(x);
-
-		//System.out.println("Partita martinparre:");
-		/*getActiveMatchesByToken("martinparres1jbl49tdarf4g3qt02va5qt3b");
-		System.out.println("partita attiva dave94:");
-		getActiveMatchesByToken("dave941t1j63ivum2takn1g2rv0dmmgg");
-		System.out.println("Partita attiva d.bertoc:");
-		getActiveMatchesByToken("d.bertoc8d5uf5ju8dm8p83vvmauub0kgj");
-
-		System.out.println("crea partita tra giorgio e nannini");
-		createMatch("g.balduzjoebtdp6k96q4ogrdnks74f522", "nanniman7shrs0kqb4ti7ohhlfufev01f3");
-		System.out.println("crea partita tra danilo e tia");
-		createMatch("d.bertoc8d5uf5ju8dm8p83vvmauub0kgj", "tiapera7cjsm2v1per79mgna4inmi4gm8");
-	*/
-		
-		//insertResult("martinparre", 83, 200);
-		
-		//EndMatch(83, "martinparre");
-		//IncrementWin("dave94");
-		//EndAllMatch();
-		System.out.println(getWin("dave941t1j63ivum2takn1g2rv0dmmgg"));
 	}
 
 }

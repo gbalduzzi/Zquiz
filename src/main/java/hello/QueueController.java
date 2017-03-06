@@ -4,10 +4,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.locks.ReentrantLock;
-
-import javax.xml.crypto.Data;
 
 import database.DBQueries;
 import model.Match;
@@ -28,7 +25,7 @@ public class QueueController implements Runnable {
 	public void run() { //aggiungere qualcosa per far dormire un po' il thread fra un ciclo e l'altro.
 		//codice per gestire la coda
 		while(true){
-			//controllo se qualche timeout è scaduto....
+			//controllo se qualche timeout e' scaduto....
 			lock.lock();
 			try{
 				Iterator<MatchRequest> it = UtentiInAttesa.iterator();
@@ -37,7 +34,7 @@ public class QueueController implements Runnable {
 					if(getDateDiff(matchRequest.getTempo())>5000){ 
 						it.remove();
 						Contatore--;
-						System.out.println("elemento eliminato dalla coda perchè il tempo è scaduto \n");
+						System.out.println("elemento eliminato dalla coda perche' il tempo e' scaduto \n");
 						Stamp();
 					}
 				}
@@ -92,21 +89,33 @@ public class QueueController implements Runnable {
 
 	}
 
+	/**
+	 * Stampa a terminale la lista di utenti in attesa
+	 */
 	public static void Stamp(){
 		int cont =0; 
 		for (MatchRequest matchRequest : UtentiInAttesa) {
-			System.out.println("Elem "+ cont +") Token: "+ matchRequest.getToken()+ ", Data: "+ matchRequest.getTempo().toString());
+			System.out.println("Elem "+ cont++ +") Token: "+ matchRequest.getToken()+ ", Data: "+ matchRequest.getTempo().toString());
 		}
 	}
 
-	//calcola la differenza fra due date in secondi
+	
+	/**
+	 * Calcola la distanza in millisecondi tra now e la data passata come parametro
+	 * @param date Data passata di cui calcolare la differenza
+	 * @return millisecondi tra le due date
+	 */
 	public static long getDateDiff(Date date) {
 		Date temp = new Date(); //di default ha il valore di adesso.
 		long diffInMillies = temp.getTime() - date.getTime();
 		return diffInMillies;
 	}
 
-	//metodo per fare la richiesta di gioco.
+	/**
+	 * Richiesta di una partita da parte di un utente
+	 * @param Token Token di autenticazione che identifica l'utente
+	 * @return Match creato se presente o null se bisogna aspettare
+	 */
 	public static Match RequestGame(String Token){
 
 		MatchRequest x = new MatchRequest(Token); //genero la tupla da mettere nella coda.
@@ -119,18 +128,15 @@ public class QueueController implements Runnable {
 				return newMatch;
 
 			}
-
-			if(CheckCoda(Token)){ //controlla se il token è già nella coda
-				for (MatchRequest matchRequest : UtentiInAttesa) { //cerco l'elemento che mi interessa e aggiorno il suo timestamp
-					if(matchRequest.getToken().equals(Token)){
-						Date reset = new Date(); //automaticamente mette come valore di default la data corrente.
-						matchRequest.setTempo(reset);
-						System.out.println("Ho aggiornato il valore della data dopo la nuova richiesta al gioco");
-						Stamp();
-					}
-				}
-			}else{//altrimenti se non è già contenuto aggiungo l'elemento alla coda.
-				InsertOrdine(x);
+			
+			MatchRequest matchRequest = checkList(Token);
+			if(matchRequest != null){ //controlla se il token e' gia' nella coda
+				Date reset = new Date(); //automaticamente mette come valore di default la data corrente.
+				matchRequest.setTempo(reset);
+				System.out.println("Ho aggiornato il valore della data dopo la nuova richiesta al gioco");
+				Stamp();
+			}else{//altrimenti se non e' gia' contenuto aggiungo l'elemento alla coda.
+				insertSorted(x);
 				Contatore++;
 				System.out.println("valore aggiunto");
 				Stamp();
@@ -141,7 +147,11 @@ public class QueueController implements Runnable {
 		return null;
 	}
 
-	public static void InsertOrdine(MatchRequest u){
+	/**
+	 * Inserisce una nuova richiesta di match nella lista, ordinata in base al numero di vittorie dell'utente
+	 * @param u MatchRequest da inserire
+	 */
+	public static void insertSorted(MatchRequest u){
 		int index=0;
 		for (MatchRequest matchRequest : UtentiInAttesa) {
 			if(matchRequest.getVittorie()>u.getVittorie()){
@@ -152,15 +162,18 @@ public class QueueController implements Runnable {
 		UtentiInAttesa.add(u);
 	}
 
-	//metodo checkcoda()
-	//mi controlla se l'utente è già nella coda-> contains elemento in coda e tornerà true o false.
-	public static boolean CheckCoda(String Token){
+	/**
+	 * Metodo che controlla se l'utente definito dal Token esiste nella Lista
+	 * @param Token
+	 * @return MatchRequest dell'utente o null se l'utente non esiste nella coda
+	 */
+	public static MatchRequest checkList(String Token){
 		for (MatchRequest matchRequest : UtentiInAttesa) {
 			if(matchRequest.getToken().equals(Token)){
-				return true;
+				return matchRequest;
 			}
 		}
-		return false;
+		return null;
 	}
 }
 

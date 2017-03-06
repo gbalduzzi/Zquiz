@@ -43,6 +43,7 @@ targetCompatibility = 1.8
 dependencies {
     // The production code uses the SLF4J logging API at compile time
     compile 'org.slf4j:slf4j-api:1.7.21'
+    compile 'mysql:mysql-connector-java:5.1.13'
     
     compile("org.springframework.boot:spring-boot-starter-web")
     testCompile('org.springframework.boot:spring-boot-starter-test')

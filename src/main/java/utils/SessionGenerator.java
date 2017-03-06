@@ -9,6 +9,11 @@ public class SessionGenerator {
 		return new BigInteger(130, new SecureRandom()).toString(32);
 	}
 	
+	/**
+	 * Ottiene timestamp del futuro per il numero di mesi specificati
+	 * @param monthsDelay Numero di mesi nel futuro di cui prendere il timestamp
+	 * @return Timestamp del futuro di monthsDelay mesi
+	 */
 	public static Timestamp getFutureTimestamp(int monthsDelay) {
 		Calendar cal = Calendar.getInstance(); 
 		cal.add(Calendar.MONTH, 1);

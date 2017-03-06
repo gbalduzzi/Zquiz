@@ -2,7 +2,6 @@ package utils;
 
 import java.util.Date;
 
-import database.DBConnection;
 import database.DBQueries;
 
 public class MatchRequest {
